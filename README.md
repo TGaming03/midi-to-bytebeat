@@ -23,7 +23,7 @@
 - Program Change (смена инструментов в любой момент), громкость CC7 и CC11, Pitch Bend с диапазоном из RPN.
 - Настройка каждой дорожки: включение, выбор любого из 128 тембров или ударных, громкость 0–150%.
 - Частота дискретизации, общая громкость, скорость, транспонирование, максимальная длительность.
-- Прослушивание в браузере, копирование выражения и скачивание как `bytebeat.js`.
+- Прослушивание в браузере с графиком волны и перемоткой по клику, копирование выражения и скачивание как `bytebeat.js`; статистика результата (ноты, дорожки, длительность, размер).
 - Перетаскивание файла на страницу, интерфейс на русском и английском, светлая и тёмная темы.
 
 ## Поддерживаемые форматы
@@ -63,7 +63,7 @@
 
 ### 128 тембров General MIDI
 
-Тембр выбирается по номеру GM-программы **напрямую**: у каждой из 128 программ свои параметры синтеза (набор гармоник, огибающая, FM, расстройка, вибрато, форманты, шум и т. д.). Например, скрипка, альт, виолончель и контрабас, или труба, тромбон, туба и валторна звучат по-разному. Любой тембр можно заменить вручную. В списке тембров также есть пункт «Ударные (GM)». Названия инструментов в списке английские, как в стандарте GM.
+Тембр выбирается по номеру GM-программы **напрямую**: у каждой из 128 программ свои параметры синтеза (набор гармоник, огибающая, FM, расстройка, вибрато, форманты, шум и т. д.). Например, скрипка, альт, виолончель и контрабас, или труба, тромбон, туба и валторна звучат по-разному. Любой тембр можно заменить вручную. В списке тембров также есть пункт «Ударные (GM)». Названия инструментов и семейств переведены: в русском интерфейсе они русские, в английском — стандартные GM-названия. Тембры в списке сгруппированы по 16 семействам.
 
 | Программы | Семейство | Что входит |
 |---|---|---|
@@ -160,7 +160,7 @@ MIT. См. [`LICENSE`](LICENSE).
 - Program Change (instrument changes at any moment), CC7 and CC11 volume, Pitch Bend with an RPN-defined range.
 - Per-track controls: enable, choose any of 128 timbres or drums, volume 0–150%.
 - Sample rate, master gain, speed, transpose, and maximum duration.
-- In-browser preview, copy the expression, or download it as `bytebeat.js`.
+- In-browser preview with a waveform and click-to-seek, copy the expression or download it as `bytebeat.js`; result statistics (notes, tracks, duration, size).
 - Drag and drop, Russian and English UI, light and dark themes.
 
 ## Supported input formats
@@ -200,7 +200,7 @@ Each group has a checkbox, a timbre selector, and a volume slider (0–150%). Gr
 
 ### 128 General MIDI timbres
 
-The timbre is chosen from the GM program number **directly**: every one of the 128 programs has its own synthesis parameters (harmonic set, envelope, FM, detune, vibrato, formants, noise, and so on). For example, violin, viola, cello, and contrabass, or trumpet, trombone, tuba, and French horn, sound different from each other. Any timbre can be overridden manually. The timbre list also contains a "Drums (GM)" entry. Instrument names in the list are in English, as in the GM standard.
+The timbre is chosen from the GM program number **directly**: every one of the 128 programs has its own synthesis parameters (harmonic set, envelope, FM, detune, vibrato, formants, noise, and so on). For example, violin, viola, cello, and contrabass, or trumpet, trombone, tuba, and French horn, sound different from each other. Any timbre can be overridden manually. The timbre list also contains a "Drums (GM)" entry. Instrument and family names are localized: Russian in the Russian UI, standard GM names in English. Timbres are grouped into 16 families in the list.
 
 | Programs | Family | Includes |
 |---|---|---|

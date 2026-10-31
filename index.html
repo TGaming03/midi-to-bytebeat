@@ -5,75 +5,89 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MIDI → Bytebeat Studio</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#f4f5f7;--card:#fff;--tx:#1b1d22;--mu:#6b7280;--ac:#0a7d3c;--bd:#d5d8de;--code:#0d1117;--cx:#7ee787}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1013;--card:#171a20;--tx:#e6e8ec;--mu:#8b93a1;--ac:#3ddc84;--bd:#2a2f38}}
-:root[data-theme="dark"]{--bg:#0e1013;--card:#171a20;--tx:#e6e8ec;--mu:#8b93a1;--ac:#3ddc84;--bd:#2a2f38}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f4f8;--card:#fff;--in:#f3f4f8;--tx:#16181d;--mu:#667085;--ac:#6d4aff;--ac2:#00b894;--bd:#e1e4ec;--code:#0d1117;--cx:#7ee787;--sh:0 8px 30px rgba(30,30,60,.08)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0e13;--card:#151922;--in:#0f1219;--tx:#e8eaf0;--mu:#8d96a8;--ac:#9b85ff;--ac2:#3ddc97;--bd:#262c3a;--sh:none}}
+:root[data-theme="dark"]{--bg:#0c0e13;--card:#151922;--in:#0f1219;--tx:#e8eaf0;--mu:#8d96a8;--ac:#9b85ff;--ac2:#3ddc97;--bd:#262c3a;--sh:none}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:980px;margin:auto;padding:20px 16px 40px}
-h1{font-size:24px;margin:0 0 4px}h1 span{color:var(--ac)}
-.sub{color:var(--mu);margin:0 0 18px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
-.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+[hidden]{display:none!important}
+body{margin:0;color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1100px 480px at 8% -8%,color-mix(in srgb,var(--ac) 20%,transparent),transparent),radial-gradient(900px 400px at 100% 0,color-mix(in srgb,var(--ac2) 14%,transparent),transparent),var(--bg);background-attachment:fixed}
+main{max-width:1000px;margin:auto;padding:22px 16px 44px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));flex:none}
+h1{font-size:24px;margin:0;line-height:1.2}h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mu);margin:2px 0 0;font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:var(--sh)}
+h2{display:flex;align-items:center;gap:10px;font-size:17px;margin:0 0 14px}h2 i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 13px system-ui;color:#fff;background:var(--ac);flex:none}
+h2 small{color:var(--mu);font-weight:400;font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:14px}
 label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:4px}
-input,select,button,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+input,select,button,textarea{font:inherit;color:var(--tx);background:var(--in);border:1px solid var(--bd);border-radius:10px;padding:8px 11px}
 input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--ac)}
-button{cursor:pointer;font-weight:600}button:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
-button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.p:hover:not(:disabled){color:#fff;opacity:.88}
+button{cursor:pointer;font-weight:600;transition:.15s}button:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
+button.p{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0}button.p:hover:not(:disabled){color:#fff;filter:brightness(1.08)}
 button:disabled{opacity:.4;cursor:not-allowed}
-.tr{display:grid;grid-template-columns:24px 1fr 210px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--bd)}
-.tr small{color:var(--mu)}
-@media(max-width:600px){.tr{grid-template-columns:24px 1fr}.tr select{grid-column:1/-1}}
-#bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:8px}#bar i{display:block;height:100%;width:0;background:var(--ac)}
-textarea{width:100%;height:240px;box-sizing:border-box;background:var(--code);color:var(--cx);font:11px/1.3 ui-monospace,Consolas,monospace}
-#log{color:var(--mu);font-size:13px;margin-top:8px;word-break:break-word}
-details{color:var(--mu);font-size:13px}code{background:var(--bg);padding:1px 5px;border-radius:4px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.chk{flex-direction:row;align-items:center;gap:6px}
-.tr input[type=range]{padding:0;accent-color:var(--ac)}
-@media(min-width:601px){.tr{grid-template-columns:24px 1fr 190px 120px}}
-@media(max-width:600px){.tr input[type=range]{grid-column:1/-1}}
+.chk{flex-direction:row;align-items:center;gap:8px;font-size:13px}
+.dz{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:26px 16px;border:2px dashed var(--bd);border-radius:14px;text-align:center;background:var(--in);color:var(--tx);font-size:15px;transition:.15s}
+.dz:hover,body.drag .dz{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 8%,var(--in))}
+.dz b{font-size:16px}.dz small{color:var(--mu)}.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.mini{display:flex;gap:8px;margin-bottom:6px}.mini button{padding:4px 10px;font-size:12px}
+.tr{display:grid;grid-template-columns:24px 1fr 240px 120px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}
+.tr small{color:var(--mu)}.tr input[type=range]{padding:0;accent-color:var(--ac)}.tr select{min-width:0;width:100%}
+@media(max-width:640px){.tr{grid-template-columns:24px 1fr}.tr select,.tr input[type=range]{grid-column:1/-1}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.chips span{background:var(--in);border:1px solid var(--bd);border-radius:999px;padding:3px 12px;font-size:12.5px;color:var(--mu)}.chips b{color:var(--tx)}
+#wavebox{position:relative;margin-top:6px;border:1px solid var(--bd);border-radius:12px;background:var(--in);overflow:hidden}
+#wave{display:block;width:100%;height:90px;cursor:pointer}#ph{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--ac2);pointer-events:none}
+#wavebox small{position:absolute;right:8px;bottom:4px;color:var(--mu);font-size:11px;pointer-events:none}
+#bar{height:5px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:12px}#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+#log{color:var(--mu);font-size:13px;margin:8px 0 12px;word-break:break-word}
+textarea{width:100%;height:220px;box-sizing:border-box;background:var(--code);color:var(--cx);border-color:transparent;font:11px/1.3 ui-monospace,Consolas,monospace}
+details{color:var(--mu);font-size:13px;margin-top:12px}summary{cursor:pointer}code{background:var(--in);padding:1px 5px;border-radius:4px}
+footer{text-align:center;color:var(--mu);font-size:12.5px;margin-top:6px}
 body.drag main{outline:2px dashed var(--ac);outline-offset:-6px}
 </style>
 </head>
 <body>
 <main>
-<header class="top"><h1>MIDI → <span>Bytebeat</span> Studio</h1><div><button id="lang">EN</button> <button id="theme" title="Theme">◐</button></div></header>
-<p class="sub" data-i="sub"></p>
-<div class="card">
+<header class="top"><div class="brand"><span class="logo">♪</span><div><h1>MIDI → <span>Bytebeat</span> Studio</h1><p class="sub" data-i="sub"></p></div></div><div><button id="lang">EN</button> <button id="theme" title="Theme">◐</button></div></header>
+<section class="card">
+  <h2><i>1</i><span data-i="s1"></span></h2>
+  <label class="dz"><input type="file" id="file" accept=".mid,.midi,.json,application/json,audio/midi"><b data-i="dz"></b><small data-i="dz2"></small></label>
   <div class="row">
-    <label><span data-i="file"></span><input type="file" id="file" accept=".mid,.midi,.json,application/json,audio/midi"></label>
     <label><span data-i="sr"></span><select id="sr"><option>8000</option><option>11025</option><option selected>22050</option><option>32000</option><option>44100</option></select></label>
     <label><span data-i="mode"></span><select id="mode"><option value="b" data-i="modeB"></option><option value="f" data-i="modeF"></option></select></label>
-    <label><span data-i="max"></span><input id="max" type="number" min="0" value="0" style="width:110px"></label>
+    <label><span data-i="max"></span><input id="max" type="number" min="0" value="0" style="width:120px"></label>
     <label><span data-i="gain"></span><input id="gain" type="number" step="0.05" min="0.05" value="0.4" style="width:80px"></label>
     <label><span data-i="speed"></span><input id="speed" type="number" step="0.05" min="0.25" max="4" value="1" style="width:80px"></label>
-    <label><span data-i="trans"></span><input id="trans" type="number" step="1" min="-48" max="48" value="0" style="width:80px"></label>
+    <label><span data-i="trans"></span><input id="trans" type="number" step="1" min="-48" max="48" value="0" style="width:90px"></label>
     <label class="chk"><input type="checkbox" id="std" checked><span data-i="std"></span></label>
   </div>
-  <p class="sub" style="margin:10px 0 0" data-i="drop"></p>
-  <details style="margin-top:8px"><summary data-i="supS"></summary><p data-i="sup"></p></details>
-</div>
-<div class="card" id="tcard" hidden>
-  <b data-i="tracks"></b> <small style="color:var(--mu)" data-i="tracksH"></small>
+  <details><summary data-i="supS"></summary><p data-i="sup"></p></details>
+</section>
+<section class="card" id="tcard" hidden>
+  <h2><i>2</i><span data-i="tracks"></span><small data-i="tracksH"></small></h2>
+  <div class="mini"><button id="allon" data-i="allOn"></button><button id="alloff" data-i="allOff"></button></div>
   <div id="tracks"></div>
-</div>
-<div class="card">
+</section>
+<section class="card">
+  <h2><i>3</i><span data-i="s3"></span></h2>
   <button class="p" id="conv" disabled data-i="conv"></button>
   <button id="play" disabled data-i="play"></button>
   <button id="stop" disabled data-i="stop"></button>
   <button id="copy" disabled data-i="copy"></button>
   <button id="dl" disabled data-i="dl"></button>
+  <div class="chips" id="chips"></div>
+  <div id="wavebox" hidden><canvas id="wave" width="1000" height="90"></canvas><div id="ph"></div><small data-i="waveH"></small></div>
   <div id="bar"><i></i></div>
   <div id="log"></div>
-</div>
-<textarea id="code" readonly></textarea>
+  <textarea id="code" readonly></textarea>
+</section>
+<footer data-i="foot"></footer>
 </main>
 
 <script>
 const $=id=>document.getElementById(id);
-const VN=()=>NM.map((n,i)=>(i+1)+'. '+n).concat([L[lang].dn]);
+const VN=()=>(L[lang].nm||NM).map((n,i)=>(i+1)+'. '+n).concat([L[lang].dn]);
 const AR={
 pf:{a:.002,r:.25,d:1.1,dp:.35,m:.25,h:[1,.75,.5,.32,.22,.14,.1,.07,.05,.03],b:.6,det:.0009,ih:.00025,k:.12,lp:5000,g:.8},
 ep:{a:.002,r:.3,d:1.6,dp:.3,m:.3,h:[1],fm:[1,2.2,5,.3],k:.05,g:.85},
@@ -340,7 +354,7 @@ wait:'Жду файл…',loaded:'Загружено «{0}»: {1} дорожек
 render:'Рендер: {0}%',playing:'▶ Играет {0} с.',ended:'Воспроизведение закончено.',stopped:'Остановлено.',copied:'Скопировано в буфер обмена.',
 noTracks:'нотных дорожек не найдено',noNotes:'нет нот для конвертации',notMidi:'это не MIDI-файл',smpte:'SMPTE-тайминг не поддерживается',
 chan:'канал',prog:'программа',notesN:'нот',vol:'Громкость дорожки',
-dn:'Ударные (GM)'},
+dn:'Ударные (GM)',nm:'Рояль акустический|Рояль яркий|Рояль электрический|Пианино хонки-тонк|Электропиано 1|Электропиано 2|Клавесин|Клавинет|Челеста|Глокеншпиль|Музыкальная шкатулка|Вибрафон|Маримба|Ксилофон|Трубчатые колокола|Цимбалы|Орган с drawbar|Орган ударный|Рок-орган|Церковный орган|Язычковый орган|Аккордеон|Губная гармоника|Аккордеон (танго)|Гитара нейлон|Гитара сталь|Гитара джазовая|Гитара чистая|Гитара приглушённая|Гитара овердрайв|Гитара дисторшн|Флажолеты гитары|Контрабас акустический|Бас-гитара (пальцами)|Бас-гитара (медиатор)|Безладовый бас|Слэп-бас 1|Слэп-бас 2|Синтбас 1|Синтбас 2|Скрипка|Альт|Виолончель|Контрабас|Струнные тремоло|Струнные пиццикато|Арфа|Литавры|Струнный ансамбль 1|Струнный ансамбль 2|Синтструнные 1|Синтструнные 2|Хор «а-а-а»|Хор «у-у-у»|Синтголос|Оркестровый удар|Труба|Тромбон|Туба|Труба с сурдиной|Валторна|Медная секция|Синтмедь 1|Синтмедь 2|Саксофон сопрано|Саксофон альт|Саксофон тенор|Саксофон баритон|Гобой|Английский рожок|Фагот|Кларнет|Пикколо|Флейта|Блокфлейта|Флейта Пана|Бутылка|Сякухати|Свисток|Окарина|Лид: квадрат|Лид: пила|Лид: каллиопа|Лид: чиффер|Лид: charang|Лид: голос|Лид: пила квинтами|Лид: бас и соло|Пэд: фантазия|Пэд: тёплый|Пэд: полисинт|Пэд: космический голос|Пэд: стеклянный|Пэд: металлический|Пэд: ореол|Пэд: свип|Эффект: ледяной дождь|Эффект: саундтрек|Эффект: кристалл|Эффект: атмосфера|Эффект: яркость|Эффект: гоблины|Эффект: капли эха|Эффект: звёздная тема|Ситар|Банджо|Сямисэн|Кото|Калимба|Волынка|Фидл|Шанаи|Колокольчик|Агого|Стальные барабаны|Вудблок|Тайко|Мелодический том|Синтбарабан|Обратная тарелка|Шум струн гитары|Дыхание|Морской прибой|Пение птиц|Телефонный звонок|Вертолёт|Аплодисменты|Выстрел'.split('|'),fam:'Фортепиано|Хроматическая перкуссия|Органы|Гитары|Басы|Струнные соло|Ансамбли|Медные духовые|Язычковые|Флейты и духовые|Синт-лиды|Синт-пэды|Синт-эффекты|Этнические|Перкуссия|Звуковые эффекты'.split('|'),title:'MIDI → Bytebeat Студия',s1:'Файл и настройки',s3:'Результат',dz:'Перетащи MIDI-файл сюда или нажми, чтобы выбрать',dz2:'Поддерживаются .mid, .midi и .json',allOn:'Включить все',allOff:'Выключить все',chN:'Нот',chT:'Дорожек',chD:'Длительность',chK:'Размер',chS:'Частота',sec:'с',kb:'КБ',hz:'Гц',waveH:'Клик по графику — перемотка',foot:'Всё работает в браузере, файлы никуда не отправляются. Сделано с помощью Claude (Anthropic).'},
 en:{sub:'Load a .mid or JSON file and get a single JS expression for any bytebeat/floatbeat player. Every instrument has its own timbre.',
 drop:'You can drag a file onto the page. Everything runs in your browser; nothing is uploaded.',
 file:'File (.mid / .json)',sr:'Sample rate, Hz',mode:'Output format',modeB:'Bytebeat (0–255)',modeF:'Floatbeat (−1…1)',max:'Max seconds (0 = whole song)',gain:'Master gain',speed:'Speed ×',trans:'Transpose, semitones',
@@ -352,19 +366,20 @@ wait:'Waiting for a file…',loaded:'Loaded “{0}”: {1} tracks, {2} notes.',e
 render:'Rendering: {0}%',playing:'▶ Playing {0} s.',ended:'Playback finished.',stopped:'Stopped.',copied:'Copied to clipboard.',
 noTracks:'no note tracks found',noNotes:'no notes to convert',notMidi:'not a MIDI file',smpte:'SMPTE timing is not supported',
 chan:'channel',prog:'program',notesN:'notes',vol:'Track volume',
-dn:'Drums (GM)'}};
+dn:'Drums (GM)',fam:'Piano|Chromatic Percussion|Organ|Guitar|Bass|Solo Strings|Ensemble|Brass|Reed|Pipe|Synth Lead|Synth Pad|Synth Effects|Ethnic|Percussive|Sound Effects'.split('|'),title:'MIDI → Bytebeat Studio',s1:'File & settings',s3:'Result',dz:'Drop a MIDI file here or click to browse',dz2:'Supports .mid, .midi and .json',allOn:'Enable all',allOff:'Disable all',chN:'Notes',chT:'Tracks',chD:'Duration',chK:'Size',chS:'Rate',sec:'s',kb:'KB',hz:'Hz',waveH:'Click the waveform to seek',foot:'Everything runs in your browser; files are never uploaded. Made with Claude (Anthropic).'}};
 let lang;try{lang=localStorage.getItem('lang');}catch(e){}
 if(!L[lang])lang=/^ru/i.test(navigator.language||'')?'ru':'en';
 const I=(k,...a)=>{let s=L[lang][k];a.forEach((x,i)=>s=s.replace('{'+i+'}',x));return s;};
 let cur=['wait',[]];
+function voiceOpts(sel){const N=VN(),F=L[lang].fam;let h='';for(let g=0;g<16;g++){h+='<optgroup label="'+F[g]+'">';for(let k=g*8;k<g*8+8;k++)h+='<option value="'+k+'"'+(k==sel?' selected':'')+'>'+N[k]+'</option>';h+='</optgroup>';}return h+'<option value="128"'+(sel==128?' selected':'')+'>'+N[128]+'</option>';}
 function renderTracks(){
  const old=tracks.map((t,i)=>$('on'+i)?[$('on'+i).checked,$('v'+i).value,$('g'+i).value]:null);
  $('tracks').innerHTML=tracks.map((t,i)=>{const o=old[i]||[true,t.voice,100];
-  return `<div class="tr"><input type="checkbox" id="on${i}"${o[0]?' checked':''}><div>${i+1}. ${t.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')} <small>· ${I('chan')} ${t.ch+1}${t.prog>=0?' · '+I('prog')+' '+t.prog:''} · ${t.notes.length} ${I('notesN')}</small></div><select id="v${i}">${VN().map((n,k)=>`<option value="${k}"${k==o[1]?' selected':''}>${n}</option>`).join('')}</select><input type="range" id="g${i}" min="0" max="150" value="${o[2]}" title="${I('vol')}"></div>`;}).join('');}
+  return `<div class="tr"><input type="checkbox" id="on${i}"${o[0]?' checked':''}><div>${i+1}. ${t.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')} <small>· ${I('chan')} ${t.ch+1}${t.prog>=0?' · '+I('prog')+' '+t.prog:''} · ${t.notes.length} ${I('notesN')}</small></div><select id="v${i}">${voiceOpts(o[1])}</select><input type="range" id="g${i}" min="0" max="150" value="${o[2]}" title="${I('vol')}"></div>`;}).join('');}
 function applyLang(){
  document.documentElement.lang=lang;
  document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=I(e.dataset.i));
- $('code').placeholder=I('ph');$('lang').textContent=lang==='ru'?'EN':'RU';
+ $('code').placeholder=I('ph');document.title=I('title');if(last)chips();$('lang').textContent=lang==='ru'?'EN':'RU';
  if($('tracks').children.length)renderTracks();
  $('log').textContent=I(cur[0],...cur[1]);}
 
@@ -402,7 +417,7 @@ function build(){
 
 $('conv').onclick=()=>{
  try{
-  last=build();$('code').value=last.code;
+  last=build();$('code').value=last.code;chips();
   ['play','copy','dl'].forEach(k=>$(k).disabled=false);
   log('ready',last.n,(last.code.length/1024).toFixed(1),last.len.toFixed(0),last.SR,last.FL?'Floatbeat':'Bytebeat');
  }catch(err){log('err',err.message);console.error(err);}
@@ -410,7 +425,7 @@ $('conv').onclick=()=>{
 $('std').onchange=()=>{if(lastFile)$('file').onchange({target:{files:[lastFile]}});};
 $('copy').onclick=()=>{$('code').select();document.execCommand('copy');log('copied');};
 $('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([last.code],{type:'text/javascript'}));a.download='bytebeat.js';a.click();};
-function halt(){token++;try{src&&src.stop();}catch(_){}src=null;$('bar').firstChild.style.width='0';}
+function halt(){token++;try{src&&src.stop();}catch(_){}src=null;curSrc=null;$('bar').firstChild.style.width='0';}
 $('stop').onclick=()=>{halt();$('stop').disabled=true;log('stopped');};
 $('play').onclick=async()=>{
  halt();const my=token,{fn,SR,FL,len}=last,N=Math.ceil(len*SR);
@@ -421,10 +436,27 @@ $('play').onclick=async()=>{
   for(;i<e;i++){const v=fn(i);ch[i]=FL?v:v/127.5-1;}
   $('bar').firstChild.style.width=(i/N*100)+'%';log('render',i/N*100|0);
   await new Promise(r=>setTimeout(r));if(my!==token)return;}
- src=ctx.createBufferSource();src.buffer=buf;src.connect(ctx.destination);src.start();
- src.onended=()=>{if(my===token)log('ended');};
- log('playing',len.toFixed(0));};
+ window._buf=buf;drawWave(ch);startAt(0);};
 
+let raf=0,t0=0,curSrc=null;
+function startAt(off){
+ try{if(curSrc){curSrc.onended=null;curSrc.stop();}}catch(e){}
+ const b=window._buf,s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0,off);curSrc=src=s;t0=ctx.currentTime-off;
+ cancelAnimationFrame(raf);
+ const tick=()=>{if(curSrc!==s)return;const p=(ctx.currentTime-t0)/b.duration;$('ph').style.left=Math.min(100,p*100)+'%';if(p<1)raf=requestAnimationFrame(tick);};tick();
+ s.onended=()=>{if(curSrc===s)log('ended');};
+ log('playing',b.duration.toFixed(0));$('stop').disabled=false;}
+function drawWave(ch){
+ const c=$('wave'),g=c.getContext('2d'),W=c.width,H=c.height,n=ch.length,st=Math.max(1,Math.floor(n/W));
+ g.clearRect(0,0,W,H);g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#6d4aff';
+ for(let x=0;x<W;x++){let mn=1,mx=-1;for(let i=x*st,e=Math.min(n,i+st);i<e;i+=Math.max(1,st>>6)){const v=ch[i];if(v<mn)mn=v;if(v>mx)mx=v;}g.fillRect(x,(1-mx)*H/2,1,Math.max(1,(mx-mn)*H/2));}
+ $('wavebox').hidden=false;}
+$('wave').onclick=e=>{if(!window._buf)return;const r=e.target.getBoundingClientRect();startAt((e.clientX-r.left)/r.width*window._buf.duration);};
+function chips(){
+ const on=tracks.filter((t,i)=>$('on'+i)&&$('on'+i).checked).length;
+ $('chips').innerHTML=[['chN',last.n],['chT',on],['chD',last.len.toFixed(0)+' '+I('sec')],['chK',(last.code.length/1024).toFixed(1)+' '+I('kb')],['chS',last.SR+' '+I('hz')]].map(x=>'<span>'+I(x[0])+': <b>'+x[1]+'</b></span>').join('');}
+$('allon').onclick=()=>tracks.forEach((t,i)=>$('on'+i).checked=true);
+$('alloff').onclick=()=>tracks.forEach((t,i)=>$('on'+i).checked=false);
 $('lang').onclick=()=>{lang=lang==='ru'?'en':'ru';try{localStorage.setItem('lang',lang);}catch(e){}applyLang();};
 $('theme').onclick=()=>{const d=document.documentElement,c0=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),n=c0==='dark'?'light':'dark';d.dataset.theme=n;try{localStorage.setItem('theme',n);}catch(e){}};
 try{const th=localStorage.getItem('theme');if(th)document.documentElement.dataset.theme=th;}catch(e){}
