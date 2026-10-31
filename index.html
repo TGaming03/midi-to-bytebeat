@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIDI → Bytebeat Studio</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f5f7;--card:#fff;--tx:#1b1d22;--mu:#6b7280;--ac:#0a7d3c;--bd:#d5d8de;--code:#0d1117;--cx:#7ee787}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1013;--card:#171a20;--tx:#e6e8ec;--mu:#8b93a1;--ac:#3ddc84;--bd:#2a2f38}}
+:root[data-theme="dark"]{--bg:#0e1013;--card:#171a20;--tx:#e6e8ec;--mu:#8b93a1;--ac:#3ddc84;--bd:#2a2f38}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 4px}h1 span{color:var(--ac)}
+.sub{color:var(--mu);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:4px}
+input,select,button,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--ac)}
+button{cursor:pointer;font-weight:600}button:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button.p:hover:not(:disabled){color:#fff;opacity:.88}
+button:disabled{opacity:.4;cursor:not-allowed}
+.tr{display:grid;grid-template-columns:24px 1fr 210px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--bd)}
+.tr small{color:var(--mu)}
+@media(max-width:600px){.tr{grid-template-columns:24px 1fr}.tr select{grid-column:1/-1}}
+#bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:8px}#bar i{display:block;height:100%;width:0;background:var(--ac)}
+textarea{width:100%;height:240px;box-sizing:border-box;background:var(--code);color:var(--cx);font:11px/1.3 ui-monospace,Consolas,monospace}
+#log{color:var(--mu);font-size:13px;margin-top:8px;word-break:break-word}
+details{color:var(--mu);font-size:13px}code{background:var(--bg);padding:1px 5px;border-radius:4px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chk{flex-direction:row;align-items:center;gap:6px}
+.tr input[type=range]{padding:0;accent-color:var(--ac)}
+@media(min-width:601px){.tr{grid-template-columns:24px 1fr 190px 120px}}
+@media(max-width:600px){.tr input[type=range]{grid-column:1/-1}}
+body.drag main{outline:2px dashed var(--ac);outline-offset:-6px}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><h1>MIDI → <span>Bytebeat</span> Studio</h1><div><button id="lang">EN</button> <button id="theme" title="Theme">◐</button></div></header>
+<p class="sub" data-i="sub"></p>
+<div class="card">
+  <div class="row">
+    <label><span data-i="file"></span><input type="file" id="file" accept=".mid,.midi,.json,application/json,audio/midi"></label>
+    <label><span data-i="sr"></span><select id="sr"><option>8000</option><option>11025</option><option selected>22050</option><option>32000</option><option>44100</option></select></label>
+    <label><span data-i="mode"></span><select id="mode"><option value="b" data-i="modeB"></option><option value="f" data-i="modeF"></option></select></label>
+    <label><span data-i="max"></span><input id="max" type="number" min="0" value="0" style="width:110px"></label>
+    <label><span data-i="gain"></span><input id="gain" type="number" step="0.05" min="0.05" value="0.4" style="width:80px"></label>
+    <label><span data-i="speed"></span><input id="speed" type="number" step="0.05" min="0.25" max="4" value="1" style="width:80px"></label>
+    <label><span data-i="trans"></span><input id="trans" type="number" step="1" min="-48" max="48" value="0" style="width:80px"></label>
+    <label class="chk"><input type="checkbox" id="std" checked><span data-i="std"></span></label>
+  </div>
+  <p class="sub" style="margin:10px 0 0" data-i="drop"></p>
+  <details style="margin-top:8px"><summary data-i="supS"></summary><p data-i="sup"></p></details>
+</div>
+<div class="card" id="tcard" hidden>
+  <b data-i="tracks"></b> <small style="color:var(--mu)" data-i="tracksH"></small>
+  <div id="tracks"></div>
+</div>
+<div class="card">
+  <button class="p" id="conv" disabled data-i="conv"></button>
+  <button id="play" disabled data-i="play"></button>
+  <button id="stop" disabled data-i="stop"></button>
+  <button id="copy" disabled data-i="copy"></button>
+  <button id="dl" disabled data-i="dl"></button>
+  <div id="bar"><i></i></div>
+  <div id="log"></div>
+</div>
+<textarea id="code" readonly></textarea>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const VN=()=>L[lang].v;
+const VT=[
+{a:.002,r:.25,d:1.1,dp:.35,m:.25,h:[1,.75,.5,.32,.22,.14,.1,.07,.05,.03],b:.6,det:.0009,ih:.00025,k:.12,lp:5000,g:0.31},
+{a:.002,r:.3,d:1.6,dp:.3,m:.3,h:[1],fm:[1,2.2,5,.3],k:.05,g:0.49},
+{a:.006,r:.05,d:0,h:[.35,1,.7,.5,.4,.25,.15],q:[.5,1,2,3,4,6,8],det:.003,v:[.0015,6.5],k:.03,lp:6000,g:0.22},
+{a:.001,r:.15,d:2.4,dp:.3,m:.3,h:[1,.8,.6,.45,.3,.2,.14,.1,.07,.05],b:1,ih:.0006,k:.35,lp:4000,det:.0005,g:0.37},
+{a:.003,r:.1,d:.5,m:.3,h:[1,.8,.7,.6,.5,.4,.3,.25,.2,.15],c:.55,lp:3500,det:.0015,v:[.0012,5],vd:.3,g:0.49},
+{a:.004,r:.08,d:1.2,m:.25,h:[1,.55,.3,.18,.1],b:.8,lp:1400,k:.08,g:0.48},
+{a:.12,r:.3,d:0,h:[1,.5,.33,.25,.18,.13,.1,.07],lp:3800,det:.005,tri:1,v:[.004,5.5],vd:.15,g:0.2},
+{a:.15,r:.35,d:0,h:[1,.12,.6,.1,.45,.1,.3,.06,.2],fo:[[800,250,1.5],[1150,300,1.2],[2900,500,.5]],lp:5000,det:.003,tri:1,v:[.004,5],vd:.25,n:.02,g:0.14},
+{a:.04,r:.1,d:0,h:[1,.9,.8,.65,.5,.4,.3,.22,.15,.1],br:8,fo:[[2800,1500,.9]],c:.35,lp:7000,v:[.0015,5.5],vd:.3,g:0.52},
+{a:.03,r:.08,d:0,h:[1,0,.55,0,.35,0,.2,0,.12,0,.07],fo:[[1200,400,.8]],lp:4500,v:[.002,5],vd:.25,n:.015,g:0.22},
+{a:.001,r:.06,d:7,dp:.5,m:.25,h:[1,.35,.12],q:[1,3.93,9.2],b:2.5,k:.25,g:0.76},
+{a:.008,r:.08,d:0,h:[1,.5,.33,.25,.2,.17,.14,.12,.11,.1,.09,.08],lp:3500,det:.006,v:[.002,5.5],vd:.2,g:0.27},
+{a:.07,r:.1,d:0,h:[1,.1,.04],n:.1,v:[.004,5],vd:.35,lp:3500,g:0.3},
+{a:.4,r:.6,d:0,h:[1,.5,.33,.25,.2,.15,.1],det:.009,tri:1,lp:2200,v:[.0015,.5],g:0.27},
+{a:.001,r:.1,d:4,m:.4,h:[1,.5,.3,.2],q:[1,2.76,5.4,8.93],b:.5,g:0.37},
+{a:.9,r:.25,d:0,m:1.4,h:[],n:.6,sw:.4,g:0.83}];
+const DR={35:[0,48,26,.6,.35,38],36:[0,52,28,.6,.4,40],37:[3,830,70,1.78],38:[1,200,32,.72,18],39:[4,0,16,1],40:[1,235,30,.76,20],
+41:[0,78,9,.45,.08,24],43:[0,100,9.5,.45,.08,24],45:[0,124,10,.45,.08,24],47:[0,150,10.5,.45,.08,24],48:[0,185,11,.4,.08,24],50:[0,225,12,.4,.08,24],
+42:[2,2800,90,.55,6,1.6],44:[2,2600,60,.55,6,1.5],46:[2,2800,10,.5,6,1.25],49:[2,1700,3.6,.45,8],57:[2,1900,3.4,.45,8],51:[2,2300,3.4,.3,8],59:[2,2400,3.4,.3,8],52:[2,1500,3.5,.6,8],53:[2,2700,4,.15,5],55:[2,2100,7,.5,8],
+54:[2,5500,12,.7,6],56:[3,540,14,1.48],58:[2,600,7,.5,6],60:[0,420,28,.2,.1,50],61:[0,310,26,.2,.1,50],62:[0,330,40,.12,.1,60],63:[0,330,16,.12,.1,60],64:[0,230,14,.15,.1,50],65:[0,560,24,.3,.25,70],66:[0,420,24,.3,.25,70],
+67:[3,900,16,1.51],68:[3,700,16,1.51],69:[1,0,50,1,50],70:[1,0,60,1,60],71:[3,1900,10,1.004],72:[3,1900,3.5,1.004],73:[1,0,30,1,30],74:[1,0,12,1,12],
+75:[3,2300,110,1.46],76:[3,1100,70,1.47],77:[3,800,70,1.47],78:[3,420,14,1.5],79:[3,520,8,1.5],80:[3,2600,14,2.76],81:[3,2600,3.5,2.76],82:[1,0,45,1,45],83:[2,3200,10,.4,5],84:[3,2000,3,2.76],85:[1,2600,110,.6,110],86:[0,70,10,.25,.05,25],87:[0,70,4.5,.25,.05,25]};
+
+// Engine. The whole function text is embedded into the output expression.
+function RT(D,SR,VT,DR,G,FL,BS){
+D=D.split(",");
+var N=D.length/5,P=6.283185307179586,R=[1,1.47,1.83,2.35,2.91,3.5,4.17,5.01],X=SR/2.2,MM=14,MD=6;
+var NT=new Float64Array(N),NE=new Float64Array(N),NH=new Float64Array(N),NX=new Float64Array(N),NF=new Float64Array(N),NV=new Float32Array(N),NM=new Uint8Array(N),NW=new Uint8Array(N);
+var a=0,i,m,w,h,V,E,mx=0;
+for(i=0;i<N;i++){
+a+=parseInt(D[i*5],36);NT[i]=a/1000;h=parseInt(D[i*5+1],36)/1000;m=parseInt(D[i*5+2],36);NM[i]=m;
+NF[i]=440*Math.pow(2,(m-69)/12);NV[i]=parseInt(D[i*5+3],36)/127;w=parseInt(D[i*5+4],36);NW[i]=w;
+if(w>15){E=DR[m]||[1,2000,60,.7,60];h=Math.min(3,4.6/(E[0]==1?(E[4]||E[2]):E[2]));NH[i]=h;NE[i]=NT[i]+h;}
+else{V=VT[w];h=Math.max(h,V.m||0);NH[i]=h;NE[i]=NT[i]+h+V.r;}
+if(NE[i]>mx)mx=NE[i];NX[i]=mx;}
+var BI=[];
+if(BS)BS.split(";").forEach(function(s){var a=s.split(","),n=parseInt(a[0],36),L=(a.length-1)/2,T=new Float64Array(L),F=new Float64Array(L),C=new Float64Array(L),k,c=0;
+for(k=0;k<L;k++){T[k]=parseInt(a[1+2*k],36)/1000;F[k]=Math.pow(2,(parseInt(a[2+2*k],36)-2400)/1200);}
+for(k=0;k<L;k++){C[k]=c;if(k<L-1)c+=NF[n]*F[k]*(T[k+1]-T[k]);}
+BI[n]={T:T,F:F,C:C};});
+function cyc(j,g){var B=BI[j],k;if(!B)return NF[j]*g;k=B.T.length-1;while(k>0&&B.T[k]>g)k--;return B.C[k]+NF[j]*B.F[k]*(g-B.T[k]);}
+function rnd(x){var v=Math.sin(x*12.9898+78.233)*43758.5453;return(v-Math.floor(v))*2-1;}
+function drum(mn,u,r,rp){
+var E=DR[mn]||[1,2000,60,.7,60],T=E[0],f=E[1],d=E[2],x=E[3],s=0,k,e,z,fr,nh=(r-rp)*.7;
+if(T==0){z=E[5]||30;s=(Math.sin(P*(f*u+x*f*(1-Math.exp(-z*u))/z))*Math.exp(-u*d)+(E[4]||0)*(r*Math.exp(-u*600)+.5*Math.sin(P*1700*u)*Math.exp(-u*400)))*.9;}
+else if(T==1){e=E[4]||d;s=((f?Math.sin(P*f*u)*(1-x)*Math.exp(-u*d):0)+nh*x*Math.exp(-u*e))*.85;if(mn==73||mn==74)s*=.6+.4*Math.sin(P*45*u);}
+else if(T==2){z=E[4]||6;for(k=0;k<z;k++){fr=f*R[k];if(fr<X)s+=Math.sin(P*fr*u+k*1.3)*(fr>X*.6?1-(fr/X-.6)/.4:1)*.12;}s=(s*(1-x*.5)+nh*x*.7)*Math.exp(-u*d)*.8*(E[5]||1);}
+else if(T==3){s=(Math.sin(P*f*u)+(f*x<X?.7*Math.sin(P*f*x*u):0))*.5*Math.exp(-u*d)*.7;}
+else{e=0;for(k=0;k<4;k++)if(u>k*.011)e+=Math.exp(-(u-k*.011)*250)*.5;if(u>.044)e+=Math.exp(-(u-.044)*d);s=nh*e*.7;}
+return s;}
+function syn(w,f,u,h,r0,c){
+var V=VT[w],e=u<V.a?u/V.a:1,s=0,k,fr,ph,pm=0,A,B,H=V.h||[],L=H.length,q,x,i,F,z;
+if(V.d)e*=Math.exp(-u*V.d*(V.dp?Math.pow(f/261.6,V.dp):1));
+if(u>h)e*=1-(u-h)/V.r;
+if(V.v)pm=f*V.v[0]/V.v[1]*Math.sin(P*V.v[1]*u)*Math.min(1,Math.max(0,u-(V.vd||0))*2);
+if(V.fm){ph=P*c+pm;s=Math.sin(ph+V.fm[1]*Math.exp(-u*(V.fm[2]||4))*Math.sin(ph*V.fm[0]));if(V.fm[3]&&f*14<X)s+=V.fm[3]*Math.sin(ph*14)*Math.exp(-u*28);}
+else{
+for(k=0;k<L;k++){
+if(!H[k])continue;
+q=V.q?V.q[k]:k+1;
+if(V.ih&&!V.q)q*=Math.sqrt(1+V.ih*q*q);
+fr=f*q;x=fr/X;
+if(x>=1)break;
+A=H[k];
+if(x>.6)A*=1-((x-.6)/.4)*((x-.6)/.4);
+if(V.lp)A/=1+(fr/V.lp)*(fr/V.lp);
+if(k){if(V.b)A*=Math.exp(-u*V.b*k);if(V.br)A*=Math.min(1,.3+u*V.br);}
+if(V.fo){B=1;for(i=0;i<V.fo.length;i++){F=V.fo[i];z=(fr-F[0])/F[1];B+=F[2]*Math.exp(-z*z);}A*=B;}
+ph=P*q*c+pm*q;
+s+=A*Math.sin(ph);
+if(V.det){s+=A*Math.sin(ph*(1+V.det)+k+1);if(V.tri)s+=A*Math.sin(ph*(1-V.det*.8)+2*k+2);}
+}
+if(V.det)s*=V.tri?.58:.71;
+}
+if(V.n)s+=V.n*r0;
+if(V.k)s+=V.k*r0*Math.exp(-u*500);
+if(V.sw)s+=V.sw*Math.sin(P*(200*u+2000*u*u/Math.max(.5,h)));
+if(V.c)s=Math.tanh(s*V.c);
+return s*e*V.g;}
+return function(t){
+var s=t/SR,lo=0,hi=N,mid,j,o=0,g,w,x,r,cm=0,cd=0,q,k,ax;
+while(lo<hi){mid=(lo+hi)>>1;if(NT[mid]<=s)lo=mid+1;else hi=mid;}
+for(j=lo-1;j>=0&&NX[j]>=s;j--){
+if(NE[j]<s)continue;
+w=NW[j];
+q=w>15?cd++:cm++;
+k=q<(w>15?MD:MM)?1:1-(q-(w>15?MD:MM)+1)/4;
+if(k<=0)continue;
+g=s-NT[j];r=rnd(t+j*7919);
+o+=(w>15?drum(NM[j],g,r,rnd(t-1+j*7919)):syn(w,NF[j],g,NH[j],r,cyc(j,g)))*NV[j]*k;}
+q=Math.min(cm,MM)+Math.min(cd,MD)*.7;
+x=o*G*3.0/Math.sqrt(1+.3*(q>1?q-1:0));
+ax=x<0?-x:x;
+if(ax>.7)x=(x<0?-1:1)*(.7+.3*Math.tanh((ax-.7)/.3));
+return FL?x:(x*127.5+127.5)|0;};
+}
+
+// ---------- разбор JSON ----------
+function vOf(p,n){
+if(p<0){n=(n||'').toLowerCase();
+ const rx=[[/bass/,5],[/guitar|banjo|sitar|harp|pizz/,3],[/string|violin|cello|viola/,6],[/choir|voice/,7],[/brass|trumpet|horn|trombone|tuba/,8],
+ [/flute|pipe|whistle|ocarina/,12],[/organ|accordion/,2],[/xylo|marimba|vibra|glock|bell|celesta|music box/,10],[/pad/,13],[/lead|synth/,11],[/e\.? ?piano|electric piano/,1]];
+ for(const [r,v] of rx)if(r.test(n))return v;return 0;}
+if(p<4)return 0;if(p<6)return 1;if(p<8)return 3;if(p<16)return 10;if(p<24)return 2;if(p<29)return 3;if(p<32)return 4;if(p<40)return 5;
+if(p<=46&&p>=45)return 3;if(p==47)return 14;if(p<52)return 6;if(p<55)return 7;if(p<64)return 8;if(p<72)return 9;if(p<80)return 12;
+if(p<88)return 11;if(p<104)return 13;if(p<108)return 3;if(p==108)return 10;if(p<112)return 9;if(p<119)return 14;return 15;}
+
+
+function bendFor(ev,t0,t1){
+ let cur=0,i=0;
+ while(i<ev.length&&ev[i].t<=t0){cur=ev[i].s;i++;}
+ const c=[[0,cur]];let lt=0,ls=cur;
+ for(;i<ev.length&&ev[i].t<t1;i++){const o=ev[i].t-t0;if(o-lt>=.012&&Math.abs(ev[i].s-ls)>=.05){c.push([o,ev[i].s]);lt=o;ls=ev[i].s;}}
+ return(c.length===1&&Math.abs(cur)<.02)?null:c;}
+
+function tempoMap(tp,ppq,std){
+ tp=[...tp].sort((a,b)=>a.ticks-b.ticks);
+ if(!tp.length)tp=[{ticks:0,bpm:120}];
+ if(tp[0].ticks>0){if(std)tp.unshift({ticks:0,bpm:120});else tp[0]={ticks:0,bpm:tp[0].bpm};}
+ const sg=[];let acc=0;
+ tp.forEach((x,i)=>{if(i){const p=tp[i-1];acc+=(x.ticks-p.ticks)/ppq*60/p.bpm;}sg.push({k:x.ticks,s:acc,b:x.bpm});});
+ return k=>{let lo=0,hi=sg.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(sg[m].k<=k)lo=m;else hi=m-1;}const g=sg[lo];return g.s+(k-g.k)/ppq*60/g.b;};}
+
+function parseMidi(buf,std){
+ const b=new Uint8Array(buf),dv=new DataView(buf);let i=14;
+ const str=(o,n)=>String.fromCharCode(...b.slice(o,o+n));
+ if(str(0,4)!=='MThd')throw new Error(I('notMidi'));
+ const nt=dv.getUint16(10),div=dv.getUint16(12);
+ if(div&0x8000)throw new Error(I('smpte'));
+ const tp=[],P=[],C7=[],C11=[],notes=[],names={};
+ const PB=[],RG=[],rp=[];
+ for(let c=0;c<16;c++){P[c]=[];C7[c]=[];C11[c]=[];PB[c]=[];RG[c]=[];rp[c]={m:127,l:127};}
+ for(let ti=0;ti<nt&&i<b.length;ti++){
+  if(str(i,4)!=='MTrk')break;
+  const len=dv.getUint32(i+4);i+=8;const e=i+len,on={};let t=0,rs=0;
+  const vlq=()=>{let v=0,c;do{c=b[i++];v=(v<<7)|(c&127);}while(c&128);return v;};
+  while(i<e){
+   t+=vlq();let s=b[i];
+   if(s===0xFF){const ty=b[i+1];i+=2;const l=vlq();
+    if(ty===0x51)tp.push({ticks:t,bpm:60e6/((b[i]<<16)|(b[i+1]<<8)|b[i+2])});
+    else if(ty===3)names[ti]=str(i,l);
+    i+=l;}
+   else if(s===0xF0||s===0xF7){i++;i+=vlq();}
+   else{
+    if(s&128){rs=s;i++;}else s=rs;
+    const k=s>>4,c=s&15,one=(k===12||k===13),d1=b[i],d2=one?0:b[i+1];i+=one?1:2;
+    if(k===12)P[c].push({t,v:d1});
+    else if(k===11&&d1===7)C7[c].push({t,v:d2});
+    else if(k===11&&d1===11)C11[c].push({t,v:d2});
+    else if(k===11&&d1===101)rp[c].m=d2;
+    else if(k===11&&d1===100)rp[c].l=d2;
+    else if(k===11&&d1===6&&rp[c].m===0&&rp[c].l===0)RG[c].push({t,v:d2});
+    else if(k===14)PB[c].push({t,v:d1|(d2<<7)});
+    else if(k===9&&d2>0)(on[c*128+d1]=on[c*128+d1]||[]).push({t,v:d2});
+    else if(k===8||k===9){const q=on[c*128+d1];if(q&&q.length){const o=q.shift();notes.push({ti,c,m:d1,t0:o.t,t1:Math.max(t,o.t+1),v:o.v});}}
+   }}
+  i=e;
+  for(const key in on)for(const o of on[key])notes.push({ti,c:(+key)>>7,m:(+key)&127,t0:o.t,t1:t,v:o.v});
+ }
+ const f=tempoMap(tp,div,std);
+ const val=(arr,tk,def)=>{let v=def;for(const x of arr){if(x.t<=tk)v=x.v;else break;}return v;};
+ RG.forEach(a=>a.sort((x,y)=>x.t-y.t));
+ const BE=PB.map((a,c)=>a.sort((x,y)=>x.t-y.t).map(x=>({t:f(x.t),s:(x.v-8192)/8192*val(RG[c],x.t,2)})));
+ notes.sort((a,b)=>a.t0-b.t0);
+ const grp={},out=[];
+ for(const n of notes){
+  const drum=n.c===9,prog=drum?-1:val(P[n.c],n.t0,0),key=n.ti+'|'+n.c+'|'+prog;
+  let g=grp[key];
+  if(!g){g=grp[key]={name:names[n.ti]||'—',prog,ch:n.c,voice:drum?16:vOf(prog),notes:[]};out.push(g);}
+  const vol=Math.sqrt(val(C7[n.c],n.t0,100)/127*val(C11[n.c],n.t0,127)/127),t=f(n.t0);
+  const d=Math.max(.02,f(n.t1)-t);
+  g.notes.push({t,d,m:n.m,v:Math.min(1,n.v/127*vol*1.1),b:drum?null:bendFor(BE[n.c],t,t+d)});
+ }
+ return out;}
+
+function parseJ(j,std){
+ const h=j.header||{},ppq=h.ppq||h.PPQ||480;
+ const visi=!!(j.tempo&&j.tempo.length&&j.tempo[0].absoluteTime!=null);
+ let tp;
+ if(h.tempos&&h.tempos.length)tp=h.tempos;
+ else if(visi)tp=j.tempo.map(x=>({ticks:x.absoluteTime,bpm:x.bpm}));
+ else tp=[{ticks:0,bpm:h.bpm||(j.tempo&&j.tempo[0]&&j.tempo[0].bpm)||120}];
+ const f=tempoMap(tp,ppq,std),cb=h.bpm||(visi?j.tempo[0].bpm:120),k2=cb*ppq/60;
+ const out=[];
+ (j.tracks||[]).forEach(tr=>{
+  const ins=tr.instrument,io=ins&&typeof ins==='object'?ins:{};
+  const name=typeof ins==='string'?ins:(io.name||tr.instrumentName||'');
+  const prog=io.number!=null?io.number:(tr.instrumentNumber!=null?tr.instrumentNumber:-1);
+  const ch=tr.channel!=null?tr.channel:(tr.channelNumber!=null?tr.channelNumber:0);
+  const drum=ch===9,notes=[];
+  const cc6=tr.controlChanges&&tr.controlChanges['6'],rg=(cc6&&cc6.length&&Math.round(cc6[0].value*127))||2;
+  const ev=(tr.pitchBends||[]).map(x=>({t:x.ticks!=null?f(x.ticks):x.time,s:x.value*rg}));
+  for(const n of (tr.notes||[])){
+   let t,d;
+   if(n.ticks!=null){t=f(n.ticks);d=n.durationTicks!=null?f(n.ticks+n.durationTicks)-t:(n.duration||.25);}
+   else if(visi){const tk=n.time*k2;t=f(tk);d=f(tk+(n.duration||.1)*k2)-t;}
+   else if(n.time!=null){t=n.time;d=n.duration||.25;}
+   else continue;
+   if(!(d>0))d=.1;
+   notes.push({t,d,m:Math.max(0,Math.min(127,n.midi!=null?n.midi:60)),v:n.velocity!=null?n.velocity:.8,b:drum?null:bendFor(ev,t,t+d)});}
+  if(notes.length)out.push({name:tr.name&&!name?tr.name:(name||'—'),prog,ch,voice:drum?16:vOf(prog,name),notes});
+ });
+ return out;}
+
+async function load(f){
+ const buf=await f.arrayBuffer(),b=new Uint8Array(buf),std=$('std').checked;
+ if(b[0]===0x4D&&b[1]===0x54&&b[2]===0x68&&b[3]===0x64)return parseMidi(buf,std);
+ return parseJ(JSON.parse(new TextDecoder().decode(buf)),std);}
+
+const L={
+ru:{sub:'Загрузи .mid или JSON — получишь одно JS-выражение для bytebeat/floatbeat-плеера. У каждого инструмента свой тембр.',
+drop:'Файл можно перетащить прямо на страницу. Всё работает в браузере, ничего не отправляется на сервер.',
+file:'Файл (.mid / .json)',sr:'Частота, Гц',mode:'Формат вывода',modeB:'Bytebeat (0–255)',modeF:'Floatbeat (−1…1)',max:'Макс. секунд (0 = вся песня)',gain:'Громкость',speed:'Скорость ×',trans:'Транспонирование, полутоны',
+std:'120 BPM до первой смены темпа (стандарт MIDI)',supS:'Какие файлы поддерживаются',
+sup:'<b>.mid / .midi — лучший вариант:</b> точная карта темпа, смена инструментов (Program Change), громкость CC7/CC11, pitch bend. <b>JSON:</b> форматы @tonejs/midi и VisiPiano. Темп и тики восстанавливаются, но смена программ и CC теряются, а у VisiPiano нет pitch bend. Барабаны — канал 10.',
+tracks:'Дорожки',tracksH:'— включай, меняй тембр и громкость',conv:'⚙️ Конвертировать',play:'▶ Прослушать',stop:'⏹ Стоп',copy:'📋 Копировать',dl:'💾 Скачать .js',
+ph:'Здесь появится код — одно выражение для плеера (частоту плеера выставь такой же, как выбрана выше).',
+wait:'Жду файл…',loaded:'Загружено «{0}»: {1} дорожек, {2} нот.',err:'Ошибка: {0}',ready:'Готово: {0} нот, {1} КБ, ~{2} с. В плеере выставь частоту {3} Гц, режим {4}.',
+render:'Рендер: {0}%',playing:'▶ Играет {0} с.',ended:'Воспроизведение закончено.',stopped:'Остановлено.',copied:'Скопировано в буфер обмена.',
+noTracks:'нотных дорожек не найдено',noNotes:'нет нот для конвертации',notMidi:'это не MIDI-файл',smpte:'SMPTE-тайминг не поддерживается',
+chan:'канал',prog:'программа',notesN:'нот',vol:'Громкость дорожки',
+v:['Фортепиано','Электропиано (FM)','Орган / аккордеон','Щипковая / гитара','Овердрайв-гитара','Бас','Струнные','Хор / голос','Медь','Язычковые','Маллеты (ксилофон…)','Синт-лид','Флейта / духовые','Пэд','Звонкая перкуссия','Шумовой свип','Ударные (GM)']},
+en:{sub:'Load a .mid or JSON file and get a single JS expression for any bytebeat/floatbeat player. Every instrument has its own timbre.',
+drop:'You can drag a file onto the page. Everything runs in your browser; nothing is uploaded.',
+file:'File (.mid / .json)',sr:'Sample rate, Hz',mode:'Output format',modeB:'Bytebeat (0–255)',modeF:'Floatbeat (−1…1)',max:'Max seconds (0 = whole song)',gain:'Master gain',speed:'Speed ×',trans:'Transpose, semitones',
+std:'120 BPM before the first tempo change (MIDI standard)',supS:'Supported files',
+sup:'<b>.mid / .midi is the best option:</b> exact tempo map, instrument changes (Program Change), CC7/CC11 volume, pitch bend. <b>JSON:</b> @tonejs/midi and VisiPiano formats. Tempo and ticks are rebuilt, but program changes and CCs are lost, and VisiPiano has no pitch bend. Drums = channel 10.',
+tracks:'Tracks',tracksH:'— toggle, change timbre and volume',conv:'⚙️ Convert',play:'▶ Preview',stop:'⏹ Stop',copy:'📋 Copy',dl:'💾 Download .js',
+ph:'The code appears here: one expression for the player (set the player sample rate to the one chosen above).',
+wait:'Waiting for a file…',loaded:'Loaded “{0}”: {1} tracks, {2} notes.',err:'Error: {0}',ready:'Done: {0} notes, {1} KB, ~{2} s. In the player set {3} Hz, mode {4}.',
+render:'Rendering: {0}%',playing:'▶ Playing {0} s.',ended:'Playback finished.',stopped:'Stopped.',copied:'Copied to clipboard.',
+noTracks:'no note tracks found',noNotes:'no notes to convert',notMidi:'not a MIDI file',smpte:'SMPTE timing is not supported',
+chan:'channel',prog:'program',notesN:'notes',vol:'Track volume',
+v:['Piano','Electric piano (FM)','Organ / accordion','Plucked / guitar','Overdrive guitar','Bass','Strings','Choir / voice','Brass','Reeds','Mallets (xylophone…)','Synth lead','Flute / winds','Pad','Bell percussion','Noise sweep','Drums (GM)']}};
+let lang;try{lang=localStorage.getItem('lang');}catch(e){}
+if(!L[lang])lang=/^ru/i.test(navigator.language||'')?'ru':'en';
+const I=(k,...a)=>{let s=L[lang][k];a.forEach((x,i)=>s=s.replace('{'+i+'}',x));return s;};
+let cur=['wait',[]];
+function renderTracks(){
+ const old=tracks.map((t,i)=>$('on'+i)?[$('on'+i).checked,$('v'+i).value,$('g'+i).value]:null);
+ $('tracks').innerHTML=tracks.map((t,i)=>{const o=old[i]||[true,t.voice,100];
+  return `<div class="tr"><input type="checkbox" id="on${i}"${o[0]?' checked':''}><div>${i+1}. ${t.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')} <small>· ${I('chan')} ${t.ch+1}${t.prog>=0?' · '+I('prog')+' '+t.prog:''} · ${t.notes.length} ${I('notesN')}</small></div><select id="v${i}">${VN().map((n,k)=>`<option value="${k}"${k==o[1]?' selected':''}>${n}</option>`).join('')}</select><input type="range" id="g${i}" min="0" max="150" value="${o[2]}" title="${I('vol')}"></div>`;}).join('');}
+function applyLang(){
+ document.documentElement.lang=lang;
+ document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=I(e.dataset.i));
+ $('code').placeholder=I('ph');$('lang').textContent=lang==='ru'?'EN':'RU';
+ if($('tracks').children.length)renderTracks();
+ $('log').textContent=I(cur[0],...cur[1]);}
+
+let tracks=[],last=null,ctx=null,src=null,token=0,lastFile=null;
+const log=(k,...a)=>{cur=[k,a];$('log').textContent=I(k,...a);};
+
+$('file').onchange=async e=>{
+ const f=e.target.files[0];if(!f)return;
+ try{
+  lastFile=f;tracks=await load(f);
+  if(!tracks.length)throw new Error(I('noTracks'));
+  $('tracks').innerHTML='';renderTracks();
+  $('tcard').hidden=false;$('conv').disabled=false;
+  log('loaded',f.name,tracks.length,tracks.reduce((a,t)=>a+t.notes.length,0));
+ }catch(err){log('err',err.message);}
+};
+
+function build(){
+ const sp=+$('speed').value||1,tp=+$('trans').value||0,SR=+$('sr').value,FL=$('mode').value==='f',G=+$('gain').value||.4,mx=+$('max').value||1e9;
+ const all=[];
+ tracks.forEach((t,i)=>{if(!$('on'+i).checked)return;const w=+$('v'+i).value,gv=$('g'+i).value/100;for(const n of t.notes){const tt=n.t/sp;if(tt<mx)all.push([tt,n.d/sp,w===16?n.m:Math.max(0,Math.min(127,n.m+tp)),Math.min(1.5,n.v*gv),w,n.b]);}});
+ if(!all.length)throw new Error(I('noNotes'));
+ all.sort((a,b)=>a[0]-b[0]);
+ let prev=0,end=0;const enc=[];
+ for(const n of all){
+  const t=Math.round(n[0]*1000),d=Math.max(1,Math.round(Math.min(n[1],30,mx-n[0]+1)*1000));
+  enc.push((t-prev).toString(36),d.toString(36),n[2].toString(36),Math.max(1,Math.min(127,Math.round(n[3]*127))).toString(36),n[4].toString(36));
+  prev=t;end=Math.max(end,n[0]+Math.min(n[1],30));}
+ const D=enc.join(','),BS=all.map((n,i)=>n[5]&&n[4]<16?[i.toString(36)].concat(...n[5].map(c=>[Math.round(c[0]/sp*1000).toString(36),Math.max(0,Math.min(4800,Math.round(c[1]*100+2400))).toString(36)])).join(','):null).filter(Boolean).join(';');
+ const vt=JSON.stringify(VT).replace(/"([a-z]+)":/g,'$1:'),dr=JSON.stringify(DR);
+ const key='_bb'+Date.now().toString(36).slice(-4);
+ const body=RT.toString().replace(/\n\s*/g,'');
+ const code=`(window.${key}=window.${key}||(${body})("${D}",${SR},${vt},${dr},${G},${FL},"${BS}"),window.${key}(t))`;
+ return{code,SR,FL,fn:RT(D,SR,VT,DR,G,FL,BS),len:Math.min(end,mx)+1.5,n:all.length};}
+
+$('conv').onclick=()=>{
+ try{
+  last=build();$('code').value=last.code;
+  ['play','copy','dl'].forEach(k=>$(k).disabled=false);
+  log('ready',last.n,(last.code.length/1024).toFixed(1),last.len.toFixed(0),last.SR,last.FL?'Floatbeat':'Bytebeat');
+ }catch(err){log('err',err.message);console.error(err);}
+};
+$('std').onchange=()=>{if(lastFile)$('file').onchange({target:{files:[lastFile]}});};
+$('copy').onclick=()=>{$('code').select();document.execCommand('copy');log('copied');};
+$('dl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([last.code],{type:'text/javascript'}));a.download='bytebeat.js';a.click();};
+function halt(){token++;try{src&&src.stop();}catch(_){}src=null;$('bar').firstChild.style.width='0';}
+$('stop').onclick=()=>{halt();$('stop').disabled=true;log('stopped');};
+$('play').onclick=async()=>{
+ halt();const my=token,{fn,SR,FL,len}=last,N=Math.ceil(len*SR);
+ ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')await ctx.resume();
+ const buf=ctx.createBuffer(1,N,SR),ch=buf.getChannelData(0);$('stop').disabled=false;
+ for(let i=0;i<N;){
+  const e=Math.min(N,i+15000);
+  for(;i<e;i++){const v=fn(i);ch[i]=FL?v:v/127.5-1;}
+  $('bar').firstChild.style.width=(i/N*100)+'%';log('render',i/N*100|0);
+  await new Promise(r=>setTimeout(r));if(my!==token)return;}
+ src=ctx.createBufferSource();src.buffer=buf;src.connect(ctx.destination);src.start();
+ src.onended=()=>{if(my===token)log('ended');};
+ log('playing',len.toFixed(0));};
+
+$('lang').onclick=()=>{lang=lang==='ru'?'en':'ru';try{localStorage.setItem('lang',lang);}catch(e){}applyLang();};
+$('theme').onclick=()=>{const d=document.documentElement,c0=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),n=c0==='dark'?'light':'dark';d.dataset.theme=n;try{localStorage.setItem('theme',n);}catch(e){}};
+try{const th=localStorage.getItem('theme');if(th)document.documentElement.dataset.theme=th;}catch(e){}
+document.addEventListener('dragover',e=>{e.preventDefault();document.body.classList.add('drag');});
+document.addEventListener('dragleave',e=>{if(!e.relatedTarget)document.body.classList.remove('drag');});
+document.addEventListener('drop',e=>{e.preventDefault();document.body.classList.remove('drag');if(e.dataTransfer.files.length)$('file').onchange({target:{files:e.dataTransfer.files}});});
+applyLang();
+</script>
+</body>
+</html>
