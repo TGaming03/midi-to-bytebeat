@@ -73,24 +73,69 @@ body.drag main{outline:2px dashed var(--ac);outline-offset:-6px}
 
 <script>
 const $=id=>document.getElementById(id);
-const VN=()=>L[lang].v;
-const VT=[
-{a:.002,r:.25,d:1.1,dp:.35,m:.25,h:[1,.75,.5,.32,.22,.14,.1,.07,.05,.03],b:.6,det:.0009,ih:.00025,k:.12,lp:5000,g:0.31},
-{a:.002,r:.3,d:1.6,dp:.3,m:.3,h:[1],fm:[1,2.2,5,.3],k:.05,g:0.49},
-{a:.006,r:.05,d:0,h:[.35,1,.7,.5,.4,.25,.15],q:[.5,1,2,3,4,6,8],det:.003,v:[.0015,6.5],k:.03,lp:6000,g:0.22},
-{a:.001,r:.15,d:2.4,dp:.3,m:.3,h:[1,.8,.6,.45,.3,.2,.14,.1,.07,.05],b:1,ih:.0006,k:.35,lp:4000,det:.0005,g:0.37},
-{a:.003,r:.1,d:.5,m:.3,h:[1,.8,.7,.6,.5,.4,.3,.25,.2,.15],c:.55,lp:3500,det:.0015,v:[.0012,5],vd:.3,g:0.49},
-{a:.004,r:.08,d:1.2,m:.25,h:[1,.55,.3,.18,.1],b:.8,lp:1400,k:.08,g:0.48},
-{a:.12,r:.3,d:0,h:[1,.5,.33,.25,.18,.13,.1,.07],lp:3800,det:.005,tri:1,v:[.004,5.5],vd:.15,g:0.2},
-{a:.15,r:.35,d:0,h:[1,.12,.6,.1,.45,.1,.3,.06,.2],fo:[[800,250,1.5],[1150,300,1.2],[2900,500,.5]],lp:5000,det:.003,tri:1,v:[.004,5],vd:.25,n:.02,g:0.14},
-{a:.04,r:.1,d:0,h:[1,.9,.8,.65,.5,.4,.3,.22,.15,.1],br:8,fo:[[2800,1500,.9]],c:.35,lp:7000,v:[.0015,5.5],vd:.3,g:0.52},
-{a:.03,r:.08,d:0,h:[1,0,.55,0,.35,0,.2,0,.12,0,.07],fo:[[1200,400,.8]],lp:4500,v:[.002,5],vd:.25,n:.015,g:0.22},
-{a:.001,r:.06,d:7,dp:.5,m:.25,h:[1,.35,.12],q:[1,3.93,9.2],b:2.5,k:.25,g:0.76},
-{a:.008,r:.08,d:0,h:[1,.5,.33,.25,.2,.17,.14,.12,.11,.1,.09,.08],lp:3500,det:.006,v:[.002,5.5],vd:.2,g:0.27},
-{a:.07,r:.1,d:0,h:[1,.1,.04],n:.1,v:[.004,5],vd:.35,lp:3500,g:0.3},
-{a:.4,r:.6,d:0,h:[1,.5,.33,.25,.2,.15,.1],det:.009,tri:1,lp:2200,v:[.0015,.5],g:0.27},
-{a:.001,r:.1,d:4,m:.4,h:[1,.5,.3,.2],q:[1,2.76,5.4,8.93],b:.5,g:0.37},
-{a:.9,r:.25,d:0,m:1.4,h:[],n:.6,sw:.4,g:0.83}];
+const VN=()=>NM.map((n,i)=>(i+1)+'. '+n).concat([L[lang].dn]);
+const AR={
+pf:{a:.002,r:.25,d:1.1,dp:.35,m:.25,h:[1,.75,.5,.32,.22,.14,.1,.07,.05,.03],b:.6,det:.0009,ih:.00025,k:.12,lp:5000,g:.8},
+ep:{a:.002,r:.3,d:1.6,dp:.3,m:.3,h:[1],fm:[1,2.2,5,.3],k:.05,g:.85},
+hp:{a:.001,r:.1,d:2.6,dp:.3,m:.2,h:[1,.9,.8,.7,.6,.5,.4,.3,.2],b:.25,k:.35,lp:8000,det:.0006,g:.6},
+cv:{a:.001,r:.06,d:3.5,m:.2,h:[1,.5,.9,.4,.7,.3,.5],c:.45,k:.3,lp:6000,g:.7},
+bl:{a:.001,r:.1,d:4,m:.4,h:[1,.5,.3,.2],q:[1,2.76,5.4,8.93],b:.5,g:.6},
+ml:{a:.001,r:.06,d:7,dp:.5,m:.25,h:[1,.35,.12],q:[1,3.93,9.2],b:2.5,k:.25,g:.9},
+org:{a:.006,r:.05,d:0,h:[.35,1,.7,.5,.4,.25,.15],q:[.5,1,2,3,4,6,8],det:.003,v:[.0015,6.5],k:.03,lp:6000,g:.5},
+ac:{a:.04,r:.06,d:0,h:[1,.6,.5,.4,.3,.25,.2,.15],det:.004,v:[.002,5.5],vd:.1,lp:4500,n:.01,g:.5},
+pl:{a:.001,r:.15,d:2.4,dp:.3,m:.3,h:[1,.8,.6,.45,.3,.2,.14,.1,.07,.05],b:1,ih:.0006,k:.35,lp:4000,det:.0005,g:.75},
+od:{a:.003,r:.1,d:.5,m:.3,h:[1,.8,.7,.6,.5,.4,.3,.25,.2,.15],c:.55,lp:3500,det:.0015,v:[.0012,5],vd:.3,g:.5},
+bs:{a:.004,r:.08,d:1.2,m:.25,h:[1,.55,.3,.18,.1],b:.8,lp:1400,k:.08,g:1},
+str:{a:.12,r:.3,d:0,h:[1,.5,.33,.25,.18,.13,.1,.07],lp:3800,det:.005,tri:1,v:[.004,5.5],vd:.15,g:.5},
+vl:{a:.06,r:.15,d:0,h:[1,.5,.33,.25,.2,.16,.12,.1],lp:4500,det:.0015,v:[.005,5.5],vd:.2,k:.02,g:.5},
+ch:{a:.15,r:.35,d:0,h:[1,.12,.6,.1,.45,.1,.3,.06,.2],fo:[[800,250,1.5],[1150,300,1.2],[2900,500,.5]],lp:5000,det:.003,tri:1,v:[.004,5],vd:.25,n:.02,g:.5},
+br:{a:.04,r:.1,d:0,h:[1,.9,.8,.65,.5,.4,.3,.22,.15,.1],br:8,fo:[[2800,1500,.9]],c:.35,lp:7000,v:[.0015,5.5],vd:.3,g:.45},
+rd:{a:.03,r:.08,d:0,h:[1,0,.55,0,.35,0,.2,0,.12,0,.07],fo:[[1200,400,.8]],lp:4500,v:[.002,5],vd:.25,n:.015,g:.6},
+sx:{a:.03,r:.08,d:0,h:[1,.7,.55,.4,.3,.22,.16,.1],fo:[[1500,700,.8]],lp:4500,v:[.003,5.5],vd:.2,n:.04,g:.5},
+ld:{a:.008,r:.08,d:0,h:[1,.5,.33,.25,.2,.17,.14,.12,.11,.1,.09,.08],lp:3500,det:.006,v:[.002,5.5],vd:.2,g:.4},
+sq:{a:.008,r:.08,d:0,h:[1,0,.33,0,.2,0,.14,0,.11,0,.09],lp:3500,det:.006,v:[.002,5.5],vd:.2,g:.4},
+fl:{a:.07,r:.1,d:0,h:[1,.1,.04],n:.1,v:[.004,5],vd:.35,lp:3500,g:.6},
+pd:{a:.4,r:.6,d:0,h:[1,.5,.33,.25,.2,.15,.1],det:.009,tri:1,lp:2200,v:[.0015,.5],g:.4},
+sw:{a:.9,r:.25,d:0,m:1.4,h:[],n:.6,sw:.4,g:.35},
+tm:{a:.001,r:.1,d:3.5,m:.3,h:[1,.4],q:[1,1.5],pdp:[.5,25],k:.3,g:.9},
+nz:{a:.01,r:.1,d:0,h:[],n:1,g:.3},
+tl:{a:.01,r:.08,d:0,h:[1],g:.5}};
+const PG=[
+['pf'],['pf',{lp:8000,h:[1,.9,.7,.5,.35,.25,.18,.12,.08,.05],g:.7}],['pf',{lp:3500,det:.002,d:.9,k:.05}],['pf',{det:.006,lp:4500}],
+['ep'],['ep',{fm:[1,1.4,3,.5],d:1.2}],['hp'],['cv'],
+['bl',{q:[1,4,8],h:[1,.3,.1],d:5,b:1}],['bl',{q:[1,2.76,5.4,8.9],h:[1,.8,.5,.3],d:4,r:.12}],['bl',{q:[1,2.8,6],h:[1,.3,.1],d:6,lp:6000}],['bl',{q:[1,3.98,9.5],h:[1,.3,.1],d:1.4,m:.5,am:[5.5,.25]}],
+['ml'],['ml',{q:[1,3,6],h:[1,.5,.25],d:9,r:.05}],['bl',{q:[1,2.76,4.07,5.4],h:[1,.7,.6,.4],d:1,m:.8,r:.5}],['pl',{lp:6000,h:[1,.6,.8,.3,.4,.2],det:.003,d:2.2,k:.2}],
+['org'],['org',{h:[.3,1,.5,.6,.2,.1,.1],k:.25}],['org',{c:.5,det:.005,h:[.4,1,.9,.8,.7,.5,.4],v:[.002,7]}],['org',{a:.04,r:.15,det:.002,lp:5000,q:[1,2,3,4,5,6,8],h:[1,.8,.7,.6,.5,.35,.25],v:[.0005,4]}],
+['ac',{h:[1,.4,.7,.3,.5,.2,.3],lp:3000,det:.0015,v:[.001,4]}],['ac'],['ac',{h:[1,.5,.7,.3,.4],lp:5000,n:.03,det:.002,a:.02,fo:[[1500,600,.8]]}],['ac',{lp:3000,det:.006,h:[1,.7,.4,.5,.2,.25,.1],a:.06}],
+['pl'],['pl',{lp:7000,h:[1,.9,.7,.6,.5,.4,.3,.2,.15,.1],d:2,k:.45,det:.0008}],['pl',{lp:2500,d:2.8,h:[1,.6,.3,.2,.1],k:.15}],['pl',{lp:3500,d:1.4,det:.001,h:[1,.7,.5,.35,.25,.15]}],
+['pl',{d:9,lp:2000,m:.15,r:.05,h:[1,.6,.4,.2],k:.4}],['od',{c:.4}],['od',{c:1,lp:5000,h:[1,.9,.8,.8,.7,.6,.5,.45,.4,.3],d:.3}],['pl',{h:[1],d:2.5,k:.1,lp:9000,b:0,ih:0}],
+['bs',{lp:900,d:1.8,h:[1,.4,.2],k:.15}],['bs'],['bs',{lp:2200,k:.4,d:1.6,h:[1,.7,.4,.3,.2]}],['bs',{d:.7,lp:1800,v:[.002,5],vd:.2,h:[1,.6,.35,.25]}],
+['bs',{lp:3000,k:.5,d:2,h:[1,.5,.6,.4,.5,.3]}],['bs',{lp:3500,k:.6,d:2.4,h:[1,.4,.7,.3,.6,.4]}],['bs',{lp:1800,d:.5,h:[1,.8,.6,.5,.4,.3,.2],c:.5,det:.003}],['bs',{lp:1200,d:.2,h:[1,.5,.9,.3,.5],det:.005,k:.2}],
+['vl'],['vl',{lp:3200,a:.08}],['vl',{lp:2200,a:.1,v:[.004,5]}],['vl',{lp:1200,a:.12,v:[.003,5]}],
+['str',{am:[9,.55],a:.05}],['pl',{d:7,r:.05,m:.2,k:.2,lp:2800,h:[1,.6,.3,.1]}],['pl',{d:1.8,lp:3500,h:[1,.5,.2,.1],k:.08,b:1.2,ih:.0001}],['tm'],
+['str'],['str',{a:.25,lp:2800,r:.5}],['str',{lp:5000,det:.008,h:[1,.6,.5,.4,.35,.3,.25,.2]}],['str',{lp:2500,a:.3,det:.01}],
+['ch'],['ch',{fo:[[400,150,1.8],[800,200,.6]],lp:2500,h:[1,.1,.3,.05,.1]}],['ch',{fo:[[600,200,1.5],[1500,300,1]],det:.006,c:.3,n:0}],['br',{a:.005,d:3,m:.35,r:.2,br:50,c:.6,det:.003,h:[1,.9,.9,.8,.7,.6,.5,.4,.3,.2]}],
+['br'],['br',{lp:3500,fo:[[900,400,1]],a:.05}],['br',{lp:1500,fo:[[400,250,1]],a:.06,h:[1,.8,.5,.3,.2,.1]}],['br',{fo:[[1200,300,1.5],[2800,500,.4]],lp:4000,c:.2}],
+['br',{lp:2800,fo:[[600,300,.8]],a:.08,br:4,h:[1,.8,.6,.45,.3,.2,.1]}],['br',{det:.002,tri:1,a:.05,br:10}],['br',{c:.5,det:.006,br:6,lp:5000,h:[1,.8,.7,.6,.5,.4,.3,.3,.2,.2]}],['br',{c:.5,det:.008,br:3,lp:3500,a:.08}],
+['sx',{lp:5500,fo:[[2000,800,.9]]}],['sx'],['sx',{lp:3500,fo:[[1000,500,.9]],a:.04}],['sx',{lp:2200,fo:[[700,350,.9]],a:.05}],
+['rd',{h:[1,.9,.8,.5,.3,.2,.1],fo:[[1300,300,1.5]],lp:5000,n:.01}],['rd',{h:[1,.8,.6,.4,.3,.15],fo:[[900,250,1.4]],lp:3000}],['rd',{h:[1,.7,.6,.4,.3,.2,.1],fo:[[500,200,1.4]],lp:2000}],['rd'],
+['fl',{lp:6000,h:[1,.1],n:.08,v:[.003,6]}],['fl'],['fl',{h:[1,.05,.15],n:.04,a:.03,v:[.001,4],vd:.5}],['fl',{n:.2,a:.04,h:[1,.05],lp:2500}],
+['fl',{n:.3,h:[1],a:.05,lp:1500,v:[.001,4]}],['fl',{n:.18,h:[1,.3,.1],a:.1,v:[.006,4.5],lp:2500}],['fl',{n:.02,h:[1],lp:9000,v:[.006,6],vd:.15,a:.04}],['fl',{n:.01,h:[1,.05],a:.04,v:[.002,4],lp:3000}],
+['sq'],['ld'],['sq',{n:.08,a:.03,det:.002}],['ld',{k:.25,a:.01,lp:4500,det:.003}],
+['od',{c:.8,det:.004,v:[.003,6],h:[1,.6,.8,.5,.6,.4,.3,.2]}],['ch',{tri:0,det:.002,a:.03,fo:[[700,200,1.5],[1100,250,1]],h:[1,.4,.5,.3,.3,.2],n:.01}],['ld',{q:[1,1.5,2,3,4,4.5,6],h:[1,.7,.5,.4,.3,.2,.15],det:.004}],['ld',{q:[.5,1,2,3,4,5,6],h:[.8,1,.5,.35,.25,.2,.15],det:.003}],
+['pd',{q:[1,2.01,3,4.2,5.4],h:[1,.4,.3,.2,.2],lp:6000,v:[.002,3]}],['pd',{lp:1500}],['pd',{lp:4500,a:.1,h:[1,.6,.5,.4,.3,.25,.2,.15],det:.012}],['ch',{wb:[2,8,.4,.3],a:.5,lp:3500,fo:[[900,300,1.3]],n:.03}],
+['pd',{q:[1,2.01,3.97,5.2],h:[1,.3,.3,.15],lp:5000,det:.003,a:.25}],['pd',{q:[1,2.76,4.07,5.4,8.9],h:[1,.4,.3,.25,.15],lp:5000,det:.004,a:.15}],['ch',{a:.35,lp:6000,wb:[2,3,.5,.2],fo:[[600,300,1],[3500,800,.6]]}],['pd',{br:1.2,h:[1,.8,.6,.5,.4,.3,.2,.2],lp:6000,a:.8,r:.8}],
+['bl',{q:[1,3.5,7.2,11],d:1.8,m:.6,wb:[4,60,9,.2]}],['pd',{a:.7,lp:3000,v:[.003,.4],h:[1,.7,.4,.3]}],['bl',{q:[1,2.5,4.7,7],h:[1,.7,.6,.4],d:2.5,m:.6,lp:9000}],['pd',{k:.3,a:.02,d:.3,m:.5,lp:2500}],
+['pd',{lp:8000,a:.2,h:[1,.7,.6,.5,.4,.3,.3,.2]}],['ch',{wb:[.5,12,.6,.4],lp:2000,a:.4,fo:[[500,200,1.5]]}],['bl',{am:[6,.6],d:1.2,m:.8,q:[1,2.01,3,4.2]}],['bl',{q:[1,2,3,4.01,5],h:[1,.5,.4,.3,.2],a:.3,d:.3,m:.6,det:.005}],
+['pl',{ih:.006,h:[1,.9,.9,.8,.7,.6,.5,.4],b:.4,lp:6000,d:1.8,k:.3,det:.002}],['pl',{lp:6500,d:5,h:[1,.9,.7,.6,.5,.4,.3],k:.5,m:.2}],['pl',{lp:5000,d:4,k:.4,n:.05,h:[1,.8,.7,.6,.4,.3]}],['pl',{lp:4500,d:2.2,ih:.0012,h:[1,.6,.3,.2,.1],k:.2}],
+['ml',{q:[1,5.4,11],h:[1,.15,.05],d:3.5,m:.35,k:.15}],['ac',{lp:4000,h:[1,.9,.8,.7,.5,.4,.3,.2],det:.002,a:.02,v:[.0005,4],fo:[[1000,400,.8]]}],['vl',{k:.08,lp:5500,a:.04,det:.003}],['rd',{h:[1,.9,.8,.6,.5,.4,.3,.2],fo:[[1500,400,1.2]],lp:5500,det:.003,n:.03}],
+['bl',{q:[1,3.1,7],h:[1,.4,.2],d:3,lp:9000,m:.3}],['bl',{q:[1,1.51,2.7],h:[1,.7,.3],d:6,m:.2}],['bl',{q:[1,2.01,3,4.1],h:[1,.6,.4,.3],d:2.8,m:.4,am:[6,.2]}],['bl',{q:[1,2.4],h:[1,.4],d:30,m:.1,r:.03,k:.2}],
+['tm',{pdp:[.6,18],d:5,h:[1,.3],k:.5}],['tm',{d:7,pdp:[.4,28]}],['tm',{d:6,pdp:[1.2,35],q:[1,1],c:.4}],['sw'],
+['nz',{a:.001,r:.04,d:35,m:.1,sw:.15}],['nz',{a:.15,r:.25,m:.4,n:.5}],['nz',{a:.8,r:.8,m:1.5,am:[.3,.7],n:.5}],['tl',{h:[],wb:[2,900,14,1],a:.01,r:.05,am:[10,.5],g:.3}],
+['tl',{h:[1,1],q:[1,1.09],am:[20,.95],a:.001,r:.02,g:.4}],['nz',{n:.7,am:[16,.95],h:[.5],a:.2,r:.3,m:.5}],['nz',{n:.9,am:[37,.5],a:.3,r:.4,m:.6}],['nz',{a:.001,r:.05,d:20,m:.15,n:1,h:[1],pdp:[2,60]}]];
+const GN=[0.16, 0.14, 0.16, 0.17, 0.25, 0.23, 0.15, 0.48, 0.33, 0.23, 0.36, 0.22, 0.37, 0.39, 0.14, 0.2, 0.12, 0.14, 0.22, 0.1, 0.12, 0.12, 0.1, 0.13, 0.18, 0.16, 0.21, 0.17, 0.35, 0.32, 0.17, 0.21, 0.31, 0.25, 0.24, 0.21, 0.25, 0.26, 0.46, 0.21, 0.14, 0.15, 0.16, 0.17, 0.13, 0.31, 0.18, 0.27, 0.1, 0.12, 0.09, 0.13, 0.07, 0.07, 0.24, 0.33, 0.28, 0.27, 0.27, 0.4, 0.29, 0.26, 0.23, 0.24, 0.1, 0.09, 0.09, 0.09, 0.08, 0.09, 0.07, 0.12, 0.16, 0.16, 0.15, 0.16, 0.16, 0.16, 0.16, 0.16, 0.17, 0.15, 0.16, 0.14, 0.21, 0.07, 0.12, 0.12, 0.15, 0.15, 0.09, 0.12, 0.12, 0.11, 0.08, 0.23, 0.19, 0.21, 0.19, 0.1, 0.08, 0.08, 0.23, 0.23, 0.13, 0.22, 0.21, 0.19, 0.28, 0.07, 0.14, 0.08, 0.25, 0.3, 0.23, 0.72, 0.33, 0.37, 0.71, 0.44, 0.66, 0.25, 0.7, 0.2, 0.17, 0.23, 0.21, 0.32];
+const NM='Acoustic Grand Piano|Bright Acoustic Piano|Electric Grand Piano|Honky-Tonk Piano|Electric Piano 1|Electric Piano 2|Harpsichord|Clavinet|Celesta|Glockenspiel|Music Box|Vibraphone|Marimba|Xylophone|Tubular Bells|Dulcimer|Drawbar Organ|Percussive Organ|Rock Organ|Church Organ|Reed Organ|Accordion|Harmonica|Tango Accordion|Nylon String Guitar|Steel String Guitar|Electric Jazz Guitar|Electric Clean Guitar|Electric Muted Guitar|Overdriven Guitar|Distortion Guitar|Guitar Harmonics|Acoustic Bass|Electric Bass (finger)|Electric Bass (pick)|Fretless Bass|Slap Bass 1|Slap Bass 2|Synth Bass 1|Synth Bass 2|Violin|Viola|Cello|Contrabass|Tremolo Strings|Pizzicato Strings|Orchestral Harp|Timpani|String Ensemble 1|String Ensemble 2|Synth Strings 1|Synth Strings 2|Choir Aahs|Voice Oohs|Synth Voice|Orchestra Hit|Trumpet|Trombone|Tuba|Muted Trumpet|French Horn|Brass Section|Synth Brass 1|Synth Brass 2|Soprano Sax|Alto Sax|Tenor Sax|Baritone Sax|Oboe|English Horn|Bassoon|Clarinet|Piccolo|Flute|Recorder|Pan Flute|Blown Bottle|Shakuhachi|Whistle|Ocarina|Square Lead|Saw Lead|Synth Calliope|Chiffer Lead|Charang|Solo Vox|5th Saw Wave|Bass & Lead|Fantasia Pad|Warm Pad|Polysynth Pad|Space Voice Pad|Bowed Glass Pad|Metal Pad|Halo Pad|Sweep Pad|Ice Rain|Soundtrack|Crystal|Atmosphere|Brightness|Goblin|Echo Drops|Star Theme|Sitar|Banjo|Shamisen|Koto|Kalimba|Bagpipe|Fiddle|Shanai|Tinkle Bell|Agogo|Steel Drums|Woodblock|Taiko Drum|Melodic Tom|Synth Drum|Reverse Cymbal|Guitar Fret Noise|Breath Noise|Seashore|Bird Tweet|Telephone Ring|Helicopter|Applause|Gunshot'.split('|');
+const VT=PG.map((p,i)=>{const o=Object.assign({},AR[p[0]],p[1]||{});if(GN[i])o.g=GN[i];o.ar=undefined;return o;});
 const DR={35:[0,48,26,.6,.35,38],36:[0,52,28,.6,.4,40],37:[3,830,70,1.78],38:[1,200,32,.72,18],39:[4,0,16,1],40:[1,235,30,.76,20],
 41:[0,78,9,.45,.08,24],43:[0,100,9.5,.45,.08,24],45:[0,124,10,.45,.08,24],47:[0,150,10.5,.45,.08,24],48:[0,185,11,.4,.08,24],50:[0,225,12,.4,.08,24],
 42:[2,2800,90,.55,6,1.6],44:[2,2600,60,.55,6,1.5],46:[2,2800,10,.5,6,1.25],49:[2,1700,3.6,.45,8],57:[2,1900,3.4,.45,8],51:[2,2300,3.4,.3,8],59:[2,2400,3.4,.3,8],52:[2,1500,3.5,.6,8],53:[2,2700,4,.15,5],55:[2,2100,7,.5,8],
@@ -107,7 +152,7 @@ var a=0,i,m,w,h,V,E,mx=0;
 for(i=0;i<N;i++){
 a+=parseInt(D[i*5],36);NT[i]=a/1000;h=parseInt(D[i*5+1],36)/1000;m=parseInt(D[i*5+2],36);NM[i]=m;
 NF[i]=440*Math.pow(2,(m-69)/12);NV[i]=parseInt(D[i*5+3],36)/127;w=parseInt(D[i*5+4],36);NW[i]=w;
-if(w>15){E=DR[m]||[1,2000,60,.7,60];h=Math.min(3,4.6/(E[0]==1?(E[4]||E[2]):E[2]));NH[i]=h;NE[i]=NT[i]+h;}
+if(w>127){E=DR[m]||[1,2000,60,.7,60];h=Math.min(3,4.6/(E[0]==1?(E[4]||E[2]):E[2]));NH[i]=h;NE[i]=NT[i]+h;}
 else{V=VT[w];h=Math.max(h,V.m||0);NH[i]=h;NE[i]=NT[i]+h+V.r;}
 if(NE[i]>mx)mx=NE[i];NX[i]=mx;}
 var BI=[];
@@ -127,6 +172,8 @@ else{e=0;for(k=0;k<4;k++)if(u>k*.011)e+=Math.exp(-(u-k*.011)*250)*.5;if(u>.044)e
 return s;}
 function syn(w,f,u,h,r0,c){
 var V=VT[w],e=u<V.a?u/V.a:1,s=0,k,fr,ph,pm=0,A,B,H=V.h||[],L=H.length,q,x,i,F,z;
+if(V.pdp)c+=f*V.pdp[0]*(1-Math.exp(-V.pdp[1]*u))/V.pdp[1];
+if(V.am)e*=1-V.am[1]*(.5-.5*Math.sin(P*V.am[0]*u));
 if(V.d)e*=Math.exp(-u*V.d*(V.dp?Math.pow(f/261.6,V.dp):1));
 if(u>h)e*=1-(u-h)/V.r;
 if(V.v)pm=f*V.v[0]/V.v[1]*Math.sin(P*V.v[1]*u)*Math.min(1,Math.max(0,u-(V.vd||0))*2);
@@ -150,6 +197,7 @@ if(V.det){s+=A*Math.sin(ph*(1+V.det)+k+1);if(V.tri)s+=A*Math.sin(ph*(1-V.det*.8)
 if(V.det)s*=V.tri?.58:.71;
 }
 if(V.n)s+=V.n*r0;
+if(V.wb)s+=V.wb[3]*Math.sin(P*f*V.wb[0]*u+V.wb[1]/V.wb[2]*Math.sin(P*V.wb[2]*u));
 if(V.k)s+=V.k*r0*Math.exp(-u*500);
 if(V.sw)s+=V.sw*Math.sin(P*(200*u+2000*u*u/Math.max(.5,h)));
 if(V.c)s=Math.tanh(s*V.c);
@@ -160,13 +208,13 @@ while(lo<hi){mid=(lo+hi)>>1;if(NT[mid]<=s)lo=mid+1;else hi=mid;}
 for(j=lo-1;j>=0&&NX[j]>=s;j--){
 if(NE[j]<s)continue;
 w=NW[j];
-q=w>15?cd++:cm++;
-k=q<(w>15?MD:MM)?1:1-(q-(w>15?MD:MM)+1)/4;
+q=w>127?cd++:cm++;
+k=q<(w>127?MD:MM)?1:1-(q-(w>127?MD:MM)+1)/4;
 if(k<=0)continue;
 g=s-NT[j];r=rnd(t+j*7919);
-o+=(w>15?drum(NM[j],g,r,rnd(t-1+j*7919)):syn(w,NF[j],g,NH[j],r,cyc(j,g)))*NV[j]*k;}
+o+=(w>127?drum(NM[j],g,r,rnd(t-1+j*7919)):syn(w,NF[j],g,NH[j],r,cyc(j,g)))*NV[j]*k;}
 q=Math.min(cm,MM)+Math.min(cd,MD)*.7;
-x=o*G*3.0/Math.sqrt(1+.3*(q>1?q-1:0));
+x=o*G*4.6/Math.sqrt(1+.3*(q>1?q-1:0));
 ax=x<0?-x:x;
 if(ax>.7)x=(x<0?-1:1)*(.7+.3*Math.tanh((ax-.7)/.3));
 return FL?x:(x*127.5+127.5)|0;};
@@ -174,14 +222,10 @@ return FL?x:(x*127.5+127.5)|0;};
 
 // ---------- разбор JSON ----------
 function vOf(p,n){
-if(p<0){n=(n||'').toLowerCase();
- const rx=[[/bass/,5],[/guitar|banjo|sitar|harp|pizz/,3],[/string|violin|cello|viola/,6],[/choir|voice/,7],[/brass|trumpet|horn|trombone|tuba/,8],
- [/flute|pipe|whistle|ocarina/,12],[/organ|accordion/,2],[/xylo|marimba|vibra|glock|bell|celesta|music box/,10],[/pad/,13],[/lead|synth/,11],[/e\.? ?piano|electric piano/,1]];
+ if(p>=0)return Math.min(127,p);
+ n=(n||'').toLowerCase();
+ const rx=[[/bass/,33],[/guitar/,24],[/violin|fiddle/,40],[/string/,48],[/choir/,52],[/trumpet/,56],[/trombone/,57],[/horn/,60],[/flute/,73],[/organ/,16],[/accordion/,21],[/xylo/,13],[/marimba/,12],[/vibra/,11],[/bell|glock/,9],[/pad/,89],[/lead|synth/,80],[/e\.? ?piano|electric piano/,4],[/harp/,46],[/clarinet/,71],[/sax/,65]];
  for(const [r,v] of rx)if(r.test(n))return v;return 0;}
-if(p<4)return 0;if(p<6)return 1;if(p<8)return 3;if(p<16)return 10;if(p<24)return 2;if(p<29)return 3;if(p<32)return 4;if(p<40)return 5;
-if(p<=46&&p>=45)return 3;if(p==47)return 14;if(p<52)return 6;if(p<55)return 7;if(p<64)return 8;if(p<72)return 9;if(p<80)return 12;
-if(p<88)return 11;if(p<104)return 13;if(p<108)return 3;if(p==108)return 10;if(p<112)return 9;if(p<119)return 14;return 15;}
-
 
 function bendFor(ev,t0,t1){
  let cur=0,i=0;
@@ -243,7 +287,7 @@ function parseMidi(buf,std){
  for(const n of notes){
   const drum=n.c===9,prog=drum?-1:val(P[n.c],n.t0,0),key=n.ti+'|'+n.c+'|'+prog;
   let g=grp[key];
-  if(!g){g=grp[key]={name:names[n.ti]||'—',prog,ch:n.c,voice:drum?16:vOf(prog),notes:[]};out.push(g);}
+  if(!g){g=grp[key]={name:names[n.ti]||'—',prog,ch:n.c,voice:drum?128:vOf(prog),notes:[]};out.push(g);}
   const vol=Math.sqrt(val(C7[n.c],n.t0,100)/127*val(C11[n.c],n.t0,127)/127),t=f(n.t0);
   const d=Math.max(.02,f(n.t1)-t);
   g.notes.push({t,d,m:n.m,v:Math.min(1,n.v/127*vol*1.1),b:drum?null:bendFor(BE[n.c],t,t+d)});
@@ -275,7 +319,7 @@ function parseJ(j,std){
    else continue;
    if(!(d>0))d=.1;
    notes.push({t,d,m:Math.max(0,Math.min(127,n.midi!=null?n.midi:60)),v:n.velocity!=null?n.velocity:.8,b:drum?null:bendFor(ev,t,t+d)});}
-  if(notes.length)out.push({name:tr.name&&!name?tr.name:(name||'—'),prog,ch,voice:drum?16:vOf(prog,name),notes});
+  if(notes.length)out.push({name:tr.name&&!name?tr.name:(name||'—'),prog,ch,voice:drum?128:vOf(prog,name),notes});
  });
  return out;}
 
@@ -296,7 +340,7 @@ wait:'Жду файл…',loaded:'Загружено «{0}»: {1} дорожек
 render:'Рендер: {0}%',playing:'▶ Играет {0} с.',ended:'Воспроизведение закончено.',stopped:'Остановлено.',copied:'Скопировано в буфер обмена.',
 noTracks:'нотных дорожек не найдено',noNotes:'нет нот для конвертации',notMidi:'это не MIDI-файл',smpte:'SMPTE-тайминг не поддерживается',
 chan:'канал',prog:'программа',notesN:'нот',vol:'Громкость дорожки',
-v:['Фортепиано','Электропиано (FM)','Орган / аккордеон','Щипковая / гитара','Овердрайв-гитара','Бас','Струнные','Хор / голос','Медь','Язычковые','Маллеты (ксилофон…)','Синт-лид','Флейта / духовые','Пэд','Звонкая перкуссия','Шумовой свип','Ударные (GM)']},
+dn:'Ударные (GM)'},
 en:{sub:'Load a .mid or JSON file and get a single JS expression for any bytebeat/floatbeat player. Every instrument has its own timbre.',
 drop:'You can drag a file onto the page. Everything runs in your browser; nothing is uploaded.',
 file:'File (.mid / .json)',sr:'Sample rate, Hz',mode:'Output format',modeB:'Bytebeat (0–255)',modeF:'Floatbeat (−1…1)',max:'Max seconds (0 = whole song)',gain:'Master gain',speed:'Speed ×',trans:'Transpose, semitones',
@@ -308,7 +352,7 @@ wait:'Waiting for a file…',loaded:'Loaded “{0}”: {1} tracks, {2} notes.',e
 render:'Rendering: {0}%',playing:'▶ Playing {0} s.',ended:'Playback finished.',stopped:'Stopped.',copied:'Copied to clipboard.',
 noTracks:'no note tracks found',noNotes:'no notes to convert',notMidi:'not a MIDI file',smpte:'SMPTE timing is not supported',
 chan:'channel',prog:'program',notesN:'notes',vol:'Track volume',
-v:['Piano','Electric piano (FM)','Organ / accordion','Plucked / guitar','Overdrive guitar','Bass','Strings','Choir / voice','Brass','Reeds','Mallets (xylophone…)','Synth lead','Flute / winds','Pad','Bell percussion','Noise sweep','Drums (GM)']}};
+dn:'Drums (GM)'}};
 let lang;try{lang=localStorage.getItem('lang');}catch(e){}
 if(!L[lang])lang=/^ru/i.test(navigator.language||'')?'ru':'en';
 const I=(k,...a)=>{let s=L[lang][k];a.forEach((x,i)=>s=s.replace('{'+i+'}',x));return s;};
@@ -341,7 +385,7 @@ $('file').onchange=async e=>{
 function build(){
  const sp=+$('speed').value||1,tp=+$('trans').value||0,SR=+$('sr').value,FL=$('mode').value==='f',G=+$('gain').value||.4,mx=+$('max').value||1e9;
  const all=[];
- tracks.forEach((t,i)=>{if(!$('on'+i).checked)return;const w=+$('v'+i).value,gv=$('g'+i).value/100;for(const n of t.notes){const tt=n.t/sp;if(tt<mx)all.push([tt,n.d/sp,w===16?n.m:Math.max(0,Math.min(127,n.m+tp)),Math.min(1.5,n.v*gv),w,n.b]);}});
+ tracks.forEach((t,i)=>{if(!$('on'+i).checked)return;const w=+$('v'+i).value,gv=$('g'+i).value/100;for(const n of t.notes){const tt=n.t/sp;if(tt<mx)all.push([tt,n.d/sp,w===128?n.m:Math.max(0,Math.min(127,n.m+tp)),Math.min(1.5,n.v*gv),w,n.b]);}});
  if(!all.length)throw new Error(I('noNotes'));
  all.sort((a,b)=>a[0]-b[0]);
  let prev=0,end=0;const enc=[];
@@ -349,8 +393,8 @@ function build(){
   const t=Math.round(n[0]*1000),d=Math.max(1,Math.round(Math.min(n[1],30,mx-n[0]+1)*1000));
   enc.push((t-prev).toString(36),d.toString(36),n[2].toString(36),Math.max(1,Math.min(127,Math.round(n[3]*127))).toString(36),n[4].toString(36));
   prev=t;end=Math.max(end,n[0]+Math.min(n[1],30));}
- const D=enc.join(','),BS=all.map((n,i)=>n[5]&&n[4]<16?[i.toString(36)].concat(...n[5].map(c=>[Math.round(c[0]/sp*1000).toString(36),Math.max(0,Math.min(4800,Math.round(c[1]*100+2400))).toString(36)])).join(','):null).filter(Boolean).join(';');
- const vt=JSON.stringify(VT).replace(/"([a-z]+)":/g,'$1:'),dr=JSON.stringify(DR);
+ const D=enc.join(','),BS=all.map((n,i)=>n[5]&&n[4]<128?[i.toString(36)].concat(...n[5].map(c=>[Math.round(c[0]/sp*1000).toString(36),Math.max(0,Math.min(4800,Math.round(c[1]*100+2400))).toString(36)])).join(','):null).filter(Boolean).join(';');
+ const used=new Set(all.map(n=>n[4])),vt=JSON.stringify(VT.map((v,i)=>used.has(i)?v:null)).replace(/"([a-z]+)":/g,'$1:'),dr=JSON.stringify(DR);
  const key='_bb'+Date.now().toString(36).slice(-4);
  const body=RT.toString().replace(/\n\s*/g,'');
  const code=`(window.${key}=window.${key}||(${body})("${D}",${SR},${vt},${dr},${G},${FL},"${BS}"),window.${key}(t))`;
